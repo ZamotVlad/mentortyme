@@ -1,0 +1,122 @@
+from django import forms
+from django.contrib.auth import get_user_model
+from django.contrib.auth.forms import UserCreationForm
+from .models import Profile, Service,Review
+
+User = get_user_model()
+
+
+class CustomUserCreationForm(UserCreationForm):
+    class Meta:
+        model = User
+        fields = ('username', 'email', 'first_name', 'last_name')
+
+
+class UserUpdateForm(forms.ModelForm):
+    class Meta:
+        model = User
+        fields = ['first_name', 'last_name', 'email']
+        widgets = {
+            # ОНОВЛЕНО: 70 символів для імені та прізвища
+            'first_name': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Іван', 'maxlength': '70'}),
+            'last_name': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Петренко', 'maxlength': '70'}),
+            'email': forms.EmailInput(attrs={'class': 'form-control', 'placeholder': 'email@example.com'}),
+        }
+        labels = {
+            'first_name': "Ім'я",
+            'last_name': "Прізвище",
+            'email': "Email адреса",
+        }
+
+
+class ProfileUpdateForm(forms.ModelForm):
+    class Meta:
+        model = Profile
+        fields = ['avatar', 'position', 'age', 'gender', 'city', 'bio']
+        widgets = {
+            'avatar': forms.FileInput(attrs={'class': 'form-control'}),
+
+            # Посада і Місто - по 50 символів
+            'position': forms.TextInput(
+                attrs={'class': 'form-control', 'placeholder': 'Напр. Senior Python Developer', 'maxlength': '50'}),
+            'city': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Київ, Україна', 'maxlength': '50'}),
+
+            # Вік - числа від 14 до 100
+            'age': forms.NumberInput(attrs={'class': 'form-control', 'placeholder': '25', 'max': '100'}),
+
+            'gender': forms.Select(attrs={'class': 'form-select'}),
+
+            # Біографія - 500 символів
+            'bio': forms.Textarea(
+                attrs={'rows': 4, 'class': 'form-control', 'placeholder': 'Розкажіть про свій досвід...',
+                       'maxlength': '500'}),
+        }
+        labels = {
+            'avatar': 'Фото профілю',
+            'position': 'Ваша посада / Спеціалізація',
+            'age': 'Вік',
+            'gender': 'Стать',
+            'city': 'Місто / Локація',
+            'bio': 'Біографія',
+        }
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        if self.instance and self.instance.pk:
+            if self.instance.role == 'client':
+                if 'position' in self.fields:
+                    del self.fields['position']
+                self.fields['bio'].label = "Про себе"
+                self.fields['bio'].widget.attrs['placeholder'] = "Кілька слів про ваші інтереси..."
+            else:
+                self.fields['bio'].label = "Біографія (те, що побачать клієнти)"
+                self.fields['bio'].help_text = "Це перше, що прочитає ваш потенційний учень."
+
+
+class ServiceForm(forms.ModelForm):
+    class Meta:
+        model = Service
+        # Додали 'description' у список полів
+        fields = ['title', 'description', 'duration', 'price', 'is_active']
+        widgets = {
+            'title': forms.TextInput(
+                attrs={'class': 'form-control', 'placeholder': 'Напр. Менторська сесія Python', 'maxlength': '50'}),
+
+            # НОВЕ ПОЛЕ:
+            'description': forms.Textarea(attrs={'class': 'form-control', 'rows': 3,
+                                                 'placeholder': 'Коротко опишіть, що входить у вартість (необов\'язково)',
+                                                 'maxlength': '500'}),
+
+            'duration': forms.NumberInput(
+                attrs={'class': 'form-control', 'placeholder': '60', 'min': '15', 'max': '180', 'step': '15'}),
+            'price': forms.NumberInput(attrs={'class': 'form-control', 'placeholder': '500', 'min': '0'}),
+            'is_active': forms.CheckboxInput(attrs={'class': 'form-check-input'}),
+        }
+        labels = {
+            'title': 'Назва послуги',
+            'description': 'Опис послуги',
+            'duration': 'Тривалість (хв)',
+            'price': 'Вартість (грн)',
+            'is_active': 'Активна (показувати в профілі)',
+        }
+
+
+class ReviewForm(forms.ModelForm):
+    class Meta:
+        model = Review
+        fields = ['rating', 'comment']
+        widgets = {
+            'rating': forms.Select(attrs={'class': 'form-select'}, choices=[(i, f'{i} ⭐') for i in range(5, 0, -1)]),
+            # ДОДАЛИ maxlength і стилі
+            'comment': forms.Textarea(attrs={
+                'class': 'form-control',
+                'rows': 4,
+                'placeholder': 'Як пройшло заняття? Що сподобалось?',
+                'maxlength': '500',  # Обмеження
+                'style': 'resize: none'
+            }),
+        }
+        labels = {
+            'rating': 'Оцінка',
+            'comment': 'Ваш відгук',
+        }

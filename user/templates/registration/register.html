@@ -1,0 +1,92 @@
+{% extends 'user/base.html' %}
+
+{% block title %}Реєстрація | MentorTyme{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-center align-items-center py-5">
+    <div class="card shadow p-4" style="max-width: 500px; width: 100%;">
+        <h3 class="text-center mb-4">Реєстрація 📝</h3>
+
+        {% if form.errors %}
+            <div class="alert alert-danger">
+                <strong>Будь ласка, виправте помилки:</strong>
+                <ul class="mb-0">
+                {% for field in form %}
+                    {% for error in field.errors %}
+                        <li><strong>{{ field.label }}:</strong> {{ error }}</li>
+                    {% endfor %}
+                {% endfor %}
+                {% for error in form.non_field_errors %}
+                    <li>{{ error }}</li>
+                {% endfor %}
+                </ul>
+            </div>
+        {% endif %}
+
+        <form method="post" novalidate>
+            {% csrf_token %}
+
+            <div class="mb-3">
+                <label for="{{ form.username.id_for_label }}" class="form-label">Username:</label>
+                <input type="text" name="username" maxlength="150"
+                       class="form-control {% if form.username.errors %}is-invalid{% endif %}"
+                       required id="{{ form.username.id_for_label }}"
+                       value="{{ form.username.value|default:'' }}">
+                <div class="form-text text-muted small">Тільки літери, цифри та @/./+/-/_.</div>
+            </div>
+
+            <div class="mb-3">
+                <label for="{{ form.email.id_for_label }}" class="form-label">Email address:</label>
+                <input type="email" name="email" maxlength="254"
+                       class="form-control {% if form.email.errors %}is-invalid{% endif %}"
+                       required id="{{ form.email.id_for_label }}"
+                       value="{{ form.email.value|default:'' }}">
+            </div>
+
+            <div class="row">
+                <div class="col-md-6 mb-3">
+                    <label for="{{ form.first_name.id_for_label }}" class="form-label">First name:</label>
+                    <input type="text" name="first_name" maxlength="150"
+                           class="form-control" id="{{ form.first_name.id_for_label }}"
+                           value="{{ form.first_name.value|default:'' }}">
+                </div>
+                <div class="col-md-6 mb-3">
+                    <label for="{{ form.last_name.id_for_label }}" class="form-label">Last name:</label>
+                    <input type="text" name="last_name" maxlength="150"
+                           class="form-control" id="{{ form.last_name.id_for_label }}"
+                           value="{{ form.last_name.value|default:'' }}">
+                </div>
+            </div>
+
+            <div class="mb-3">
+                <label for="id_password1" class="form-label">Password:</label>
+                <input type="password" name="password1"
+                       class="form-control {% if form.password1.errors %}is-invalid{% endif %}"
+                       id="id_password1" required>
+
+                <div class="form-text text-muted small">
+                    <ul>
+                        <li>Мінімум 8 символів.</li>
+                        <li>Не надто схожий на нікнейм.</li>
+                        <li>Не лише цифри.</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="mb-4">
+                <label for="id_password2" class="form-label">Confirm Password:</label>
+                <input type="password" name="password2"
+                       class="form-control {% if form.password2.errors %}is-invalid{% endif %}"
+                       id="id_password2" required>
+                <div class="form-text text-muted">Введіть той самий пароль ще раз.</div>
+            </div>
+
+            <button type="submit" class="btn btn-success w-100 py-2">Створити акаунт</button>
+        </form>
+
+        <div class="text-center mt-3">
+            <small>Вже є акаунт? <a href="{% url 'login' %}">Увійти</a></small>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,131 @@
+{% extends 'user/base.html' %}
+
+{% block title %}{{ service.title }} | MentorTyme{% endblock %}
+
+{% block content %}
+<div class="py-4">
+    <a href="{% url 'home' %}" class="btn btn-outline-secondary mb-4">← Назад</a>
+
+    <div class="row">
+        <div class="col-md-5 mb-4">
+            <div class="card shadow-sm border-0 h-100">
+                {% if service.mentor.avatar %}
+                    <img src="{{ service.mentor.avatar.url }}" class="card-img-top" style="height: 300px; object-fit: cover;">
+                {% else %}
+                    <div class="bg-secondary text-white text-center py-5" style="height: 300px; display: flex; align-items: center; justify-content: center;">
+                        <span class="display-1">{{ service.mentor.user.first_name|first }}</span>
+                    </div>
+                {% endif %}
+
+                <div class="card-body">
+                    <h2 class="fw-bold">{{ service.title }}</h2>
+                    <h5 class="text-muted mb-3">Ментор: <a href="{% url 'mentor_profile' service.mentor.slug %}" class="text-decoration-none">{{ service.mentor.user.first_name }} {{ service.mentor.user.last_name }}</a></h5>
+
+                    <hr>
+
+                    {% if service.description %}
+                        <p class="text-muted fst-italic">{{ service.description|linebreaksbr }}</p>
+                    {% endif %}
+
+                    <ul class="list-group list-group-flush mt-3">
+                        <li class="list-group-item d-flex justify-content-between">
+                            <span>⏳ Тривалість</span>
+                            <strong>{{ service.duration }} хв</strong>
+                        </li>
+                        <li class="list-group-item d-flex justify-content-between">
+                            <span>💰 Вартість</span>
+                            <strong>{{ service.price }} грн</strong>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-7">
+            <div class="card shadow p-4 border-0">
+                <h3 class="mb-4">📅 Бронювання часу</h3>
+
+                {% if error_message %}
+                    <div class="alert alert-danger mt-3">
+                        🛑 {{ error_message }}
+                    </div>
+                {% endif %}
+
+                <form method="get" class="row g-3 mt-2 align-items-center bg-light p-3 rounded">
+                    <div class="col-auto">
+                        <label class="fw-bold text-muted me-2">Дата:</label>
+                    </div>
+                    <div class="col-auto">
+                        <input type="date" name="date" class="form-control" value="{{ selected_date }}" required>
+                    </div>
+                    <div class="col-auto">
+                        <button type="submit" class="btn btn-primary">Показати слоти</button>
+                    </div>
+                </form>
+
+                <hr class="my-4">
+
+                {% if selected_date %}
+                    <h5 class="mb-3">Доступно на {{ selected_date }}:</h5>
+
+                    <form method="post">
+                        {% csrf_token %}
+                        <input type="hidden" name="date" value="{{ selected_date }}">
+
+                        <div class="mb-4">
+                            <div class="d-flex justify-content-between align-items-center mb-1">
+                                <label for="note" class="form-label fw-bold mb-0">📞 Як з вами зв'язатися?</label>
+                                <small class="text-muted" id="char-counter">0 / 500</small>
+                            </div>
+
+                            <textarea name="note" id="note" class="form-control" rows="3"
+                                      placeholder="Напишіть ваш Telegram (@user), номер телефону або залиште коментар..."
+                                      required maxlength="500" style="resize: none;"></textarea>
+
+                            <div class="form-text small text-muted">Ментор побачить це повідомлення у своєму кабінеті.</div>
+                        </div>
+
+                        <p class="mb-2 fw-bold text-muted">Оберіть час для запису:</p>
+
+                        <div class="d-flex flex-wrap gap-2">
+                            {% for slot in slots %}
+                                <button type="submit" name="time" value="{{ slot }}" class="btn btn-outline-success btn-lg px-4 py-2">{{ slot }}</button>
+                            {% empty %}
+                                <div class="alert alert-warning w-100 text-center">
+                                    На жаль, на цей день вільних місць немає 😔 <br>
+                                    <small>Спробуйте обрати іншу дату вище.</small>
+                                </div>
+                            {% endfor %}
+                        </div>
+                    </form>
+                {% else %}
+                    <div class="text-center py-5">
+                        <p class="text-muted fs-5">☝️ Оберіть дату в календарі, щоб побачити розклад.</p>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        const noteInput = document.getElementById("note");
+        const counter = document.getElementById("char-counter");
+        const maxLength = 500;
+
+        if (noteInput && counter) {
+            noteInput.addEventListener("input", function() {
+                const currentLength = noteInput.value.length;
+                counter.textContent = `${currentLength} / ${maxLength}`;
+
+                if (currentLength >= maxLength) {
+                    counter.classList.add("text-danger", "fw-bold");
+                } else {
+                    counter.classList.remove("text-danger", "fw-bold");
+                }
+            });
+        }
+    });
+</script>
+{% endblock %}

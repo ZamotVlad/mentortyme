@@ -1,0 +1,109 @@
+{% extends 'user/base.html' %}
+
+{% block title %}Налаштування профілю | MentorTyme{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <h2 class="mb-4">⚙️ Налаштування профілю</h2>
+
+            {% if messages %}
+            {% for message in messages %}
+            <div class="alert alert-{{ message.tags }}">
+                {{ message }}
+            </div>
+            {% endfor %}
+            {% endif %}
+
+            <div class="card shadow">
+                <div class="card-body p-4">
+                    <div class="text-center mb-4">
+                        {% if user.profile.avatar %}
+                        <img src="{{ user.profile.avatar.url }}" class="rounded-circle border"
+                             style="width: 120px; height: 120px; object-fit: cover;">
+                        {% else %}
+                        <div class="rounded-circle bg-secondary mx-auto d-flex align-items-center justify-content-center text-white"
+                             style="width: 120px; height: 120px; font-size: 2rem;">
+                            {{ user.first_name|first }}
+                        </div>
+                        {% endif %}
+                    </div>
+
+                    <form method="post" enctype="multipart/form-data">
+                        {% csrf_token %}
+
+                        <h5 class="text-muted mb-3">Особисті дані</h5>
+
+                        {% for field in u_form %}
+                            <div class="mb-3">
+                                <label class="form-label fw-bold">{{ field.label }}</label>
+                                {{ field }}
+                                {% for error in field.errors %}
+                                    <div class="text-danger small">{{ error }}</div>
+                                {% endfor %}
+                            </div>
+                        {% endfor %}
+
+                        <hr class="my-4">
+
+                        <h5 class="text-muted mb-3">Профіль</h5>
+
+                        {% for field in p_form %}
+                            <div class="mb-3">
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <label class="form-label fw-bold">{{ field.label }}</label>
+                                    <small class="text-muted counter-display" data-target="{{ field.id_for_label }}"></small>
+                                </div>
+
+                                {{ field }}
+
+                                {% if field.help_text %}
+                                    <div class="form-text">{{ field.help_text }}</div>
+                                {% endif %}
+
+                                {% for error in field.errors %}
+                                    <div class="text-danger small">{{ error }}</div>
+                                {% endfor %}
+                            </div>
+                        {% endfor %}
+
+                        <div class="d-grid mt-4">
+                            <button type="submit" class="btn btn-primary btn-lg">Зберегти зміни 💾</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <div class="text-center mt-3">
+                <a href="{% url 'dashboard' %}" class="text-decoration-none">← Повернутися в кабінет</a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        const inputsWithLimit = document.querySelectorAll('input[maxlength], textarea[maxlength]');
+        inputsWithLimit.forEach(function(input) {
+            const maxLength = input.getAttribute('maxlength');
+            const counterId = input.id;
+            const counterDisplay = document.querySelector(`.counter-display[data-target="${counterId}"]`);
+
+            if (counterDisplay && maxLength) {
+                function updateCounter() {
+                    const currentLength = input.value.length;
+                    counterDisplay.textContent = `${currentLength} / ${maxLength}`;
+                    if (currentLength >= maxLength) {
+                        counterDisplay.classList.add("text-danger", "fw-bold");
+                    } else {
+                        counterDisplay.classList.remove("text-danger", "fw-bold");
+                    }
+                }
+                input.addEventListener("input", updateCounter);
+                updateCounter();
+            }
+        });
+    });
+</script>
+{% endblock %}

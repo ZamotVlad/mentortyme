@@ -1,0 +1,65 @@
+{% extends 'user/base.html' %}
+
+{% block title %}MentorTyme - Ваш час, Ваші правила{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+
+    {% if user.is_authenticated %}
+    <div class="text-center py-5">
+        <h1 class="display-4 fw-bold mb-3">З поверненням, {{ user.first_name }}! 👋</h1>
+        <p class="lead text-muted mb-5">Твій персональний простір готовий до роботи.</p>
+
+        <div class="d-flex justify-content-center gap-3">
+            <a href="{% url 'dashboard' %}" class="btn btn-primary btn-lg px-5 shadow-sm">
+                🚀 Перейти в Кабінет
+            </a>
+            {% if user.profile.role == 'mentor' %}
+            <a href="{% url 'mentor_profile' user.profile.slug %}" class="btn btn-outline-dark btn-lg px-5 shadow-sm">
+                🔗 Моя візитівка
+            </a>
+            {% endif %}
+        </div>
+    </div>
+
+    {% else %}
+    <div class="text-center mb-5">
+        <h1 class="display-3 fw-bold">MentorTyme 🚀</h1>
+        <p class="fs-4 text-muted">Єдина платформа для керування консультаціями.</p>
+    </div>
+
+    <div class="row align-items-stretch g-4 mt-3">
+
+        <div class="col-md-6">
+            <div class="h-100 p-5 bg-light border rounded-3 shadow-sm hover-shadow transition text-center">
+                <div class="mb-3 display-1">🎓</div>
+                <h2>Я Клієнт</h2>
+                <p class="text-muted my-4">
+                    Хочете записатися на урок? <br>
+                    Отримайте доступ до історії своїх занять, керуйте розкладом та насолоджуйтесь.
+                </p>
+                <a href="{% url 'register' %}?role=client" class="btn btn-outline-primary btn-lg w-100">
+                    Створити Акаунт
+                </a>
+            </div>
+        </div>
+
+        <div class="col-md-6">
+            <div class="h-100 p-5 text-white bg-dark rounded-3 shadow-sm hover-shadow transition text-center">
+                <div class="mb-3 display-1">👨‍🏫</div>
+                <h2>Я Ментор</h2>
+                <p class="text-white-50 my-4">
+                    Автоматизуйте свій бізнес. <br>
+                    Синхронізація з Google Calendar, персональне посилання та захист від спаму.
+                </p>
+                <a href="{% url 'register' %}?role=mentor" class="btn btn-light btn-lg w-100 fw-bold">
+                    Створити Акаунт
+                </a>
+            </div>
+        </div>
+
+    </div>
+    {% endif %}
+
+</div>
+{% endblock %}
