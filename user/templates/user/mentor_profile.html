@@ -3,43 +3,91 @@
 {% block title %}{{ mentor.user.first_name }} - Ментор | MentorTyme{% endblock %}
 
 {% block content %}
+<style>
+    .mentor-avatar {
+        box-shadow: 0 8px 30px rgba(0, 0, 0, 0.5);
+        transition: all 0.3s ease;
+    }
+
+    .mentor-avatar:hover {
+        transform: scale(1.05);
+        box-shadow: 0 12px 40px rgba(51, 153, 255, 0.3);
+    }
+
+    .service-card-hover {
+        transition: all 0.3s ease;
+    }
+
+    .service-card-hover:hover {
+        transform: translateY(-8px);
+        box-shadow: 0 12px 40px rgba(0, 0, 0, 0.5);
+    }
+
+    .rating-badge {
+        background: linear-gradient(135deg, var(--neon-gold) 0%, #f0c000 100%);
+        box-shadow: 0 4px 15px rgba(255, 215, 0, 0.3);
+    }
+
+    /* --- ФІКС ДЛЯ ДОВГИХ СЛІВ --- */
+    /* Примусово переносимо довгі слова без пробілів */
+    .break-word {
+        word-wrap: break-word !important;
+        word-break: break-word !important;
+        overflow-wrap: anywhere !important; /* Найсильніший метод переносу */
+    }
+
+    /* Дозволяємо перенос тексту в бейджах (позиція, вік) */
+    .badge {
+        white-space: normal !important; /* Перебиваємо стандарт Bootstrap */
+        text-align: center;
+        line-height: 1.4;
+        max-width: 100%; /* Щоб не вилазив за екран */
+        display: inline-block; /* Для коректної роботи max-width */
+    }
+</style>
+
 <div class="container py-5">
     <div class="text-center mb-5">
         {% if mentor.avatar %}
-            <img src="{{ mentor.avatar.url }}" class="rounded-circle mb-3 border shadow-sm" style="width: 150px; height: 150px; object-fit: cover;">
+        <img src="{{ mentor.avatar.url }}" class="rounded-circle mb-3 border mentor-avatar"
+             style="width: 150px; height: 150px; object-fit: cover; border-width: 3px !important; border-color: rgba(255, 255, 255, 0.2) !important;">
         {% else %}
-            <div class="rounded-circle bg-secondary mx-auto mb-3 d-flex align-items-center justify-content-center text-white" style="width: 150px; height: 150px; font-size: 3rem;">
-                {{ mentor.user.first_name|first }}
-            </div>
+        <div class="rounded-circle mx-auto mb-3 d-flex align-items-center justify-content-center text-white mentor-avatar"
+             style="width: 150px; height: 150px; font-size: 3rem; background: linear-gradient(135deg, #2d333b 0%, #1b1f24 100%);">
+            {{ mentor.user.first_name|first }}
+        </div>
         {% endif %}
 
-        <h2 class="fw-bold mb-1">{{ mentor.user.first_name }} {{ mentor.user.last_name }}</h2>
+        <h2 class="fw-bold mb-1 break-word">{{ mentor.user.first_name }} {{ mentor.user.last_name }}</h2>
 
         {% if mentor.get_average_rating %}
-            <div class="text-warning mb-2 fs-5" title="Середній рейтинг">
-                ★ <strong>{{ mentor.get_average_rating }}</strong> <span class="text-muted small fs-6">/ 5</span>
-            </div>
+        <div class="mb-2 fs-5 rating-badge d-inline-block px-3 py-1 rounded-pill" title="Середній рейтинг">
+            ★ <strong style="color: #000;">{{ mentor.get_average_rating }}</strong> <span class="small"
+                                                                                          style="color: #333;">/ 5</span>
+        </div>
         {% else %}
-            <div class="badge bg-light text-dark mb-2 border">Новий ментор 🚀</div>
+        <div class="badge bg-light text-dark mb-2 border" style="box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);">Новий ментор
+            🚀
+        </div>
         {% endif %}
 
-        <p class="text-muted small mb-2">@{{ mentor.slug }}</p>
+        <p class="text-muted small mb-2 break-word">@{{ mentor.slug }}</p>
 
         {% if mentor.city %}
-            <p class="text-muted mb-2">📍 {{ mentor.city }}</p>
+        <p class="text-muted mb-2 break-word">📍 {{ mentor.city }}</p>
         {% endif %}
 
         <div class="mb-3">
             {% if mentor.position %}
-                <span class="badge bg-primary fs-6">{{ mentor.position }}</span>
+            <span class="badge bg-primary fs-6 break-word" style="box-shadow: 0 2px 8px rgba(51, 153, 255, 0.3);">{{ mentor.position }}</span>
             {% endif %}
 
             {% if mentor.age %}
-                <span class="badge bg-light text-dark border fs-6 ms-1">{{ mentor.age }} років</span>
+            <span class="badge bg-light text-dark border fs-6 ms-1" style="box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);">{{ mentor.age }} років</span>
             {% endif %}
 
             {% if mentor.gender %}
-                <span class="badge bg-light text-dark border fs-6 ms-1">
+            <span class="badge bg-light text-dark border fs-6 ms-1" style="box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);">
                     {{ mentor.get_gender_display }}
                 </span>
             {% endif %}
@@ -47,53 +95,54 @@
 
         <div class="row justify-content-center">
             <div class="col-md-6">
-                <p class="lead text-muted">
+                <p class="lead text-muted break-word">
                     {% if mentor.bio %}
-                        {{ mentor.bio }}
+                    {{ mentor.bio }}
                     {% else %}
-                        Досвідчений ментор, який готовий ділитися знаннями.
+                    Досвідчений ментор, який готовий ділитися знаннями.
                     {% endif %}
                 </p>
             </div>
         </div>
     </div>
 
-    <hr class="my-5">
+    <hr class="my-5" style="border-color: rgba(255, 255, 255, 0.15); border-width: 2px;">
 
     <h3 class="mb-4 text-center">Мої послуги 💼</h3>
 
     <div class="row justify-content-center">
         {% for service in services %}
-            <div class="col-md-4 mb-4">
-                <div class="card shadow-sm h-100 hover-shadow transition">
-                    <div class="card-body text-center d-flex flex-column">
-                        <h5 class="card-title fw-bold">{{ service.title }}</h5>
+        <div class="col-md-4 mb-4">
+            <div class="card shadow-sm h-100 service-card-hover">
+                <div class="card-body text-center d-flex flex-column">
+                    <h5 class="card-title fw-bold break-word">{{ service.title }}</h5>
 
-                        {% if service.description %}
-                            <p class="card-text text-muted small fst-italic flex-grow-1">
-                                {{ service.description|truncatechars:100 }}
-                            </p>
-                        {% else %}
-                            <div class="flex-grow-1"></div>
-                        {% endif %}
+                    {% if service.description %}
+                    <p class="card-text text-muted small fst-italic flex-grow-1 break-word">
+                        {{ service.description|truncatechars:100 }}
+                    </p>
+                    {% else %}
+                    <div class="flex-grow-1"></div>
+                    {% endif %}
 
-                        <div class="mt-3">
-                            <p class="mb-2">
-                                ⏱ {{ service.duration }} хв &nbsp;|&nbsp;
-                                💰 <strong>{{ service.price }} грн</strong>
-                            </p>
-                            <a href="{% url 'service_detail' service.id %}" class="btn btn-primary w-100">Забронювати</a>
-                        </div>
+                    <div class="mt-3">
+                        <p class="mb-2">
+                            ⏱ {{ service.duration }} хв &nbsp;|&nbsp;
+                            💰 <strong>{{ service.price }} грн</strong>
+                        </p>
+                        <a href="{% url 'service_detail' service.id %}" class="btn btn-primary w-100">Забронювати</a>
                     </div>
                 </div>
             </div>
+        </div>
         {% empty %}
-            <div class="col-md-6 text-center">
-                <div class="alert alert-light border">
-                    <h4 class="text-muted">😢 Поки немає активних послуг</h4>
-                    <p class="mb-0">Цей ментор ще не додав варіанти консультацій.</p>
-                </div>
+        <div class="col-md-6 text-center">
+            <div class="alert border"
+                 style="background-color: rgba(255, 255, 255, 0.02); border-color: rgba(255, 255, 255, 0.1) !important; border-radius: 10px;">
+                <h4 class="text-muted">😢 Поки немає активних послуг</h4>
+                <p class="mb-0">Цей ментор ще не додав варіанти консультацій.</p>
             </div>
+        </div>
         {% endfor %}
     </div>
 </div>

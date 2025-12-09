@@ -8,7 +8,7 @@
         <div class="card shadow">
             <div class="card-body p-4">
                 <h3 class="text-center mb-4">Вхід 🔑</h3>
-                
+
                 <form method="post">
                     {% csrf_token %}
                     {{ form.as_p }}
@@ -18,9 +18,9 @@
                 <div class="text-end mt-2">
                     <a href="{% url 'password_reset' %}" class="text-decoration-none small">Забули пароль?</a>
                 </div>
-                
+
                 <hr class="my-4">
-                
+
                 <p class="text-center mb-0">
                     Немає акаунту? <a href="{% url 'home' %}">Створити</a>
                 </p>

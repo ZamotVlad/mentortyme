@@ -6,58 +6,69 @@
 <div class="container py-4">
 
     {% if messages %}
-        <div class="mb-4">
-            {% for message in messages %}
-                <div class="alert alert-{{ message.tags }} alert-dismissible fade show shadow-sm" role="alert">
-                    {{ message }}
-                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-                </div>
-            {% endfor %}
+    <div class="mb-4">
+        {% for message in messages %}
+        <div class="alert alert-{{ message.tags }} alert-dismissible fade show shadow-sm" role="alert">
+            {{ message }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
         </div>
+        {% endfor %}
+    </div>
     {% endif %}
 
     <div class="d-flex flex-wrap justify-content-between align-items-center mb-4 gap-3">
         <h2>👤 Особистий кабінет</h2>
 
-        <div class="d-flex align-items-center gap-2">
+        <div class="d-flex align-items-stretch gap-2">
             {% if user.social_auth.exists %}
-                <button class="btn btn-outline-success btn-sm" disabled title="Календар підключено">
-                    ✅ Google Calendar
-                </button>
+            <button class="btn btn-primary opacity-75 d-flex align-items-center" disabled title="Календар підключено"
+                    style="height: 38px; font-size: 0.875rem;">
+                ✅ Google Calendar
+            </button>
             {% else %}
-                <a href="{% url 'social:begin' 'google-oauth2' %}?next={{ request.path }}" class="btn btn-warning btn-sm">
-                    📅 Синхронізувати
-                </a>
+            <a href="{% url 'social:begin' 'google-oauth2' %}?next={{ request.path }}"
+               class="btn btn-primary d-flex align-items-center" style="height: 38px; font-size: 0.875rem;">
+                📅 Google Calendar
+            </a>
             {% endif %}
 
             {% if is_mentor %}
             <div class="d-flex gap-2">
-                <a href="{% url 'my_services' %}" class="btn btn-primary btn-sm">💼 Послуги</a>
-                <a href="{% url 'schedule_settings' %}" class="btn btn-primary btn-sm">🕒 Графік</a>
+                <a href="{% url 'my_services' %}" class="btn btn-primary d-flex align-items-center"
+                   style="height: 38px; font-size: 0.875rem;">💼 Послуги</a>
+                <a href="{% url 'schedule_settings' %}" class="btn btn-primary d-flex align-items-center"
+                   style="height: 38px; font-size: 0.875rem;">🕒 Графік</a>
             </div>
-            <a href="{% url 'mentor_profile' user.profile.slug %}" class="btn btn-outline-primary btn-sm" target="_blank">Візитівка 🔗</a>
+            <a href="{% url 'mentor_profile' user.profile.slug %}"
+               class="btn btn-outline-light d-flex align-items-center" target="_blank"
+               style="height: 38px; font-size: 0.875rem;">Візитівка 🔗</a>
             {% endif %}
 
-            <a href="{% url 'profile_settings' %}" class="btn btn-secondary btn-sm">⚙️</a>
+            <a href="{% url 'profile_settings' %}"
+               class="btn btn-secondary d-flex align-items-center justify-content-center"
+               style="height: 38px; width: 38px; font-size: 0.875rem;">⚙️</a>
         </div>
     </div>
 
     <ul class="nav nav-tabs mb-4" id="dashboardTabs" role="tablist">
         <li class="nav-item" role="presentation">
-            <button class="nav-link" id="active-tab" data-bs-toggle="tab" data-bs-target="#active" type="button" role="tab">
+            <button class="nav-link" id="active-tab" data-bs-toggle="tab" data-bs-target="#active" type="button"
+                    role="tab">
                 📅 Мої заняття
             </button>
         </li>
 
         <li class="nav-item" role="presentation">
-            <button class="nav-link" id="history-tab" data-bs-toggle="tab" data-bs-target="#history" type="button" role="tab">
+            <button class="nav-link" id="history-tab" data-bs-toggle="tab" data-bs-target="#history" type="button"
+                    role="tab">
                 📜 Історія
             </button>
         </li>
 
         {% if is_mentor %}
         <li class="nav-item" role="presentation">
-            <button class="nav-link fw-bold text-primary" id="mentor-tab" data-bs-toggle="tab" data-bs-target="#mentor" type="button" role="tab">
+            <button class="nav-link fw-bold text-primary" id="mentor-tab" data-bs-toggle="tab" data-bs-target="#mentor"
+                    type="button" role="tab">
                 👨‍🏫 Актуальні учні
             </button>
         </li>
@@ -72,16 +83,22 @@
                 <div class="list-group-item d-flex justify-content-between align-items-center">
                     <div>
                         <h5 class="mb-1">{{ booking.service.title }}</h5>
-                        <p class="mb-1">Ментор: {{ booking.mentor.user.first_name }}</p>
+                        <p class="mb-1 text-muted">
+                            Ментор: <strong class="text-white">
+                            {{ booking.mentor.user.first_name|truncatechars:12 }}
+                            {{ booking.mentor.user.last_name|truncatechars:12 }}
+                        </strong>
+                        </p>
                         <small class="text-primary fw-bold">📅 {{ booking.start_time|date:"d.m.Y H:i" }}</small>
                     </div>
-                    <form action="{% url 'cancel_booking' booking.id %}" method="post" onsubmit="return confirm('Скасувати?');">
+                    <form action="{% url 'cancel_booking' booking.id %}" method="post"
+                          onsubmit="return confirm('Скасувати?');">
                         {% csrf_token %}
                         <button type="submit" class="btn btn-outline-danger btn-sm">X</button>
                     </form>
                 </div>
                 {% empty %}
-                <div class="text-center py-5 bg-light border rounded">
+                <div class="text-center py-5">
                     <p class="text-muted mb-0">Активних занять немає.</p>
                 </div>
                 {% endfor %}
@@ -93,13 +110,15 @@
             <div class="d-flex justify-content-center mb-4 mt-2">
                 <ul class="nav nav-pills" id="history-pills-tab" role="tablist">
                     <li class="nav-item">
-                        <button class="nav-link active rounded-pill px-4" id="pills-student-tab" data-bs-toggle="pill" data-bs-target="#pills-student" type="button">
+                        <button class="nav-link active rounded-pill px-4" id="pills-student-tab" data-bs-toggle="pill"
+                                data-bs-target="#pills-student" type="button">
                             🎓 Я вчився
                         </button>
                     </li>
                     {% if is_mentor %}
                     <li class="nav-item">
-                        <button class="nav-link rounded-pill px-4 ms-2" id="pills-mentor-tab" data-bs-toggle="pill" data-bs-target="#pills-mentor" type="button">
+                        <button class="nav-link rounded-pill px-4 ms-2" id="pills-mentor-tab" data-bs-toggle="pill"
+                                data-bs-target="#pills-mentor" type="button">
                             👨‍🏫 Я навчав
                         </button>
                     </li>
@@ -111,17 +130,22 @@
                 <div class="tab-pane fade show active" id="pills-student" role="tabpanel">
                     <div class="list-group mb-3">
                         {% for booking in client_history %}
-                        <div class="list-group-item list-group-item-light">
+                        <div class="list-group-item">
                             <div class="d-flex justify-content-between align-items-center">
                                 <div>
                                     <h6 class="mb-1">{{ booking.service.title }}</h6>
-                                    <small>Ментор: {{ booking.mentor.user.first_name }} | 📅 {{ booking.start_time|date:"d.m.Y" }}</small>
+                                    <small class="text-muted">
+                                        Ментор: {{ booking.mentor.user.first_name|truncatechars:12 }} {{
+                                        booking.mentor.user.last_name|truncatechars:12 }} | 📅 {{
+                                        booking.start_time|date:"d.m.Y" }}
+                                    </small>
                                 </div>
                                 <div>
                                     {% if booking.review %}
-                                        <span class="badge bg-warning text-dark border">Оцінка: {{ booking.review.rating }}</span>
+                                    <span class="badge bg-warning border">Оцінка: {{ booking.review.rating }}</span>
                                     {% else %}
-                                        <a href="{% url 'add_review' booking.id %}" class="btn btn-sm btn-outline-primary">Залишити відгук</a>
+                                    <a href="{% url 'add_review' booking.id %}" class="btn btn-sm btn-outline-primary">Залишити
+                                        відгук</a>
                                     {% endif %}
                                 </div>
                             </div>
@@ -132,20 +156,24 @@
                     </div>
 
                     {% if client_history.has_other_pages %}
-                    <nav aria-label="Student History Pagination">
+                    <nav>
                         <ul class="pagination justify-content-center">
                             {% if client_history.has_previous %}
-                                <li class="page-item"><a class="page-link" href="?client_page={{ client_history.previous_page_number }}#history">←</a></li>
+                            <li class="page-item"><a class="page-link"
+                                                     href="?client_page={{ client_history.previous_page_number }}#history">←</a>
+                            </li>
                             {% else %}
-                                <li class="page-item disabled"><span class="page-link">←</span></li>
+                            <li class="page-item disabled"><span class="page-link">←</span></li>
                             {% endif %}
 
                             <li class="page-item active"><span class="page-link">{{ client_history.number }}</span></li>
 
                             {% if client_history.has_next %}
-                                <li class="page-item"><a class="page-link" href="?client_page={{ client_history.next_page_number }}#history">→</a></li>
+                            <li class="page-item"><a class="page-link"
+                                                     href="?client_page={{ client_history.next_page_number }}#history">→</a>
+                            </li>
                             {% else %}
-                                <li class="page-item disabled"><span class="page-link">→</span></li>
+                            <li class="page-item disabled"><span class="page-link">→</span></li>
                             {% endif %}
                         </ul>
                     </nav>
@@ -156,17 +184,21 @@
                 <div class="tab-pane fade" id="pills-mentor" role="tabpanel">
                     <div class="list-group mb-3">
                         {% for booking in mentor_history %}
-                        <div class="list-group-item list-group-item-light">
+                        <div class="list-group-item">
                             <div class="d-flex justify-content-between align-items-center">
                                 <div>
                                     <h6 class="mb-1">{{ booking.service.title }}</h6>
-                                    <small>Учень: {{ booking.client.user.first_name }} | 📅 {{ booking.start_time|date:"d.m.Y" }}</small>
+                                    <small class="text-muted">
+                                        Учень: {{ booking.client.user.first_name|truncatechars:12 }} {{
+                                        booking.client.user.last_name|truncatechars:12 }} | 📅 {{
+                                        booking.start_time|date:"d.m.Y" }}
+                                    </small>
                                 </div>
                                 <div>
                                     {% if booking.review %}
-                                        <span class="badge bg-light text-warning border">⭐ {{ booking.review.rating }}</span>
+                                    <span class="badge bg-warning border">⭐ {{ booking.review.rating }}</span>
                                     {% else %}
-                                        <span class="badge bg-light text-muted border">Без відгуку</span>
+                                    <span class="badge bg-light border">Без відгуку</span>
                                     {% endif %}
                                 </div>
                             </div>
@@ -177,20 +209,24 @@
                     </div>
 
                     {% if mentor_history.has_other_pages %}
-                    <nav aria-label="Mentor History Pagination">
+                    <nav>
                         <ul class="pagination justify-content-center">
                             {% if mentor_history.has_previous %}
-                                <li class="page-item"><a class="page-link" href="?mentor_page={{ mentor_history.previous_page_number }}#history">←</a></li>
+                            <li class="page-item"><a class="page-link"
+                                                     href="?mentor_page={{ mentor_history.previous_page_number }}#history">←</a>
+                            </li>
                             {% else %}
-                                <li class="page-item disabled"><span class="page-link">←</span></li>
+                            <li class="page-item disabled"><span class="page-link">←</span></li>
                             {% endif %}
 
                             <li class="page-item active"><span class="page-link">{{ mentor_history.number }}</span></li>
 
                             {% if mentor_history.has_next %}
-                                <li class="page-item"><a class="page-link" href="?mentor_page={{ mentor_history.next_page_number }}#history">→</a></li>
+                            <li class="page-item"><a class="page-link"
+                                                     href="?mentor_page={{ mentor_history.next_page_number }}#history">→</a>
+                            </li>
                             {% else %}
-                                <li class="page-item disabled"><span class="page-link">→</span></li>
+                            <li class="page-item disabled"><span class="page-link">→</span></li>
                             {% endif %}
                         </ul>
                     </nav>
@@ -208,20 +244,25 @@
                     <div class="d-flex justify-content-between">
                         <div>
                             <h5 class="mb-1 text-primary">{{ booking.service.title }}</h5>
-                            <p class="mb-1">Учень: <strong>{{ booking.client.user.first_name }} {{ booking.client.user.last_name }}</strong></p>
+                            <p class="mb-1 text-white">
+                                Учень: <strong>
+                                {{ booking.client.user.first_name|truncatechars:12 }}
+                                {{ booking.client.user.last_name|truncatechars:12 }}
+                            </strong>
+                            </p>
                             <small>📧 {{ booking.client.user.email }}</small>
                             {% if booking.note %}
-                                <div class="alert alert-warning p-2 mt-2 small mb-0">{{ booking.note }}</div>
+                            <div class="alert alert-warning p-2 mt-2 small mb-0 text-white">{{ booking.note }}</div>
                             {% endif %}
                         </div>
                         <div class="text-end">
-                             <div class="fs-4 fw-bold">{{ booking.start_time|date:"H:i" }}</div>
-                             <div class="text-muted">{{ booking.start_time|date:"d.m.Y" }}</div>
+                            <div class="fs-4 fw-bold">{{ booking.start_time|date:"H:i" }}</div>
+                            <div class="text-muted">{{ booking.start_time|date:"d.m.Y" }}</div>
                         </div>
                     </div>
                 </div>
                 {% empty %}
-                <div class="text-center py-5 bg-white border rounded">
+                <div class="text-center py-5">
                     <h4>Немає записів 📉</h4>
                     <p class="text-muted">Ваш розклад вільний.</p>
                 </div>
@@ -236,31 +277,22 @@
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 
 <script>
-    document.addEventListener("DOMContentLoaded", function() {
+    document.addEventListener("DOMContentLoaded", function () {
         const urlParams = new URLSearchParams(window.location.search);
-
-        // Передаємо змінну is_mentor з Django в JS
         const isMentor = "{{ is_mentor|yesno:'true,false' }}" === "true";
 
         let targetTabId = null;
         let subTabId = null;
 
-        // ЛОГІКА ВИБОРУ ВКЛАДКИ
-        // 1. Пагінація
         if (urlParams.has('client_page')) {
             targetTabId = '#history';
             subTabId = '#pills-student-tab';
-        }
-        else if (urlParams.has('mentor_page')) {
+        } else if (urlParams.has('mentor_page')) {
             targetTabId = '#history';
             subTabId = '#pills-mentor-tab';
-        }
-        // 2. Хеш
-        else if (window.location.hash) {
+        } else if (window.location.hash) {
             targetTabId = window.location.hash;
-        }
-        // 3. Дефолт
-        else {
+        } else {
             if (isMentor) {
                 targetTabId = '#mentor';
             } else {
@@ -268,7 +300,6 @@
             }
         }
 
-        // Активація
         if (targetTabId) {
             const triggerEl = document.querySelector(`button[data-bs-target="${targetTabId}"]`);
             if (triggerEl) {
@@ -285,9 +316,8 @@
             }
         }
 
-        // Оновлення URL
         const tabEls = document.querySelectorAll('button[data-bs-toggle="tab"]');
-        tabEls.forEach(function(tabEl) {
+        tabEls.forEach(function (tabEl) {
             tabEl.addEventListener('shown.bs.tab', function (event) {
                 const id = event.target.getAttribute('data-bs-target');
                 history.pushState(null, null, id);

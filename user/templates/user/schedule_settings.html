@@ -3,9 +3,53 @@
 {% block title %}Мій графік | MentorTyme{% endblock %}
 
 {% block content %}
+<style>
+    .day-row {
+        transition: all 0.2s ease;
+        border-radius: 8px;
+    }
+
+    .day-row:hover {
+        background-color: rgba(255, 255, 255, 0.02);
+        transform: translateX(4px);
+    }
+
+    .form-check-input:checked {
+        background-color: var(--neon-blue);
+        border-color: var(--neon-blue);
+        box-shadow: 0 0 10px rgba(51, 153, 255, 0.5);
+    }
+
+    input[type="time"] {
+        transition: all 0.2s ease;
+    }
+
+    input[type="time"]:focus {
+        box-shadow: 0 0 0 0.25rem rgba(51, 153, 255, 0.25);
+    }
+
+    .back-link {
+        transition: all 0.2s ease;
+    }
+
+    .back-link:hover {
+        transform: translateX(-4px);
+        color: var(--neon-blue) !important;
+    }
+
+    .schedule-card {
+        transition: all 0.3s ease;
+    }
+
+    .schedule-card:hover {
+        transform: translateY(-4px);
+    }
+</style>
+
 <div class="container py-4">
     <div class="mb-4">
-        <a href="{% url 'dashboard' %}" class="text-decoration-none text-primary fw-bold d-inline-flex align-items-center gap-2 hover-shadow p-1 rounded">
+        <a href="{% url 'dashboard' %}"
+           class="text-decoration-none text-primary fw-bold d-inline-flex align-items-center gap-2 back-link p-1 rounded">
             <span class="fs-5">←</span> Назад у кабінет
         </a>
         <h2 class="mt-3 fw-bold">📅 Налаштування графіку</h2>
@@ -14,13 +58,14 @@
 
     <div class="row justify-content-center">
         <div class="col-md-9">
-            <div class="card shadow-sm border-0">
+            <div class="card shadow-sm border-0 schedule-card">
                 <div class="card-body p-4">
 
                     <form method="post">
                         {% csrf_token %}
 
-                        <div class="row mb-3 fw-bold text-muted border-bottom pb-2 d-none d-md-flex">
+                        <div class="row mb-3 fw-bold text-muted border-bottom pb-2 d-none d-md-flex"
+                             style="border-color: rgba(255, 255, 255, 0.15) !important;">
                             <div class="col-3">День тижня</div>
                             <div class="col-2 text-center">Статус</div>
                             <div class="col-3">Початок</div>
@@ -29,7 +74,8 @@
                         </div>
 
                         {% for day in schedule %}
-                        <div class="row align-items-center mb-3 py-2 border-bottom day-row">
+                        <div class="row align-items-center mb-3 py-2 day-row"
+                             style="border-bottom: 1px solid rgba(255, 255, 255, 0.05);">
 
                             <div class="col-md-3 col-12 mb-2 mb-md-0 fw-bold">
                                 {{ day.name }}
@@ -39,7 +85,8 @@
                                 <div class="form-check form-switch d-flex justify-content-start justify-content-md-center">
                                     <input class="form-check-input" type="checkbox"
                                            name="day_{{ day.num }}_active"
-                                           {% if day.is_active %}checked{% endif %}>
+                                           {% if day.is_active %}checked{% endif %}
+                                           style="cursor: pointer;">
 
                                     <span class="d-md-none ms-2 text-muted small">Активний?</span>
                                 </div>

@@ -3,6 +3,40 @@
 {% block title %}Налаштування профілю | MentorTyme{% endblock %}
 
 {% block content %}
+<style>
+    .settings-card {
+        transition: all 0.3s ease;
+    }
+
+    .settings-card:hover {
+        transform: translateY(-4px);
+    }
+
+    .avatar-container {
+        transition: all 0.3s ease;
+    }
+
+    .avatar-container:hover {
+        transform: scale(1.05);
+        box-shadow: 0 8px 25px rgba(51, 153, 255, 0.2);
+    }
+
+    .section-divider {
+        border-bottom: 2px solid rgba(255, 255, 255, 0.1);
+        padding-bottom: 0.5rem;
+        margin-bottom: 1rem;
+        background: linear-gradient(90deg, rgba(51, 153, 255, 0.1) 0%, transparent 100%);
+        padding-left: 0.5rem;
+    }
+
+    /* ФІКС ДЛЯ ДОВГОГО ТЕКСТУ В ПОВІДОМЛЕННЯХ */
+    .break-word {
+        word-wrap: break-word !important;
+        word-break: break-word !important;
+        overflow-wrap: anywhere !important;
+    }
+</style>
+
 <div class="container py-4">
     <div class="row justify-content-center">
         <div class="col-md-8">
@@ -10,21 +44,21 @@
 
             {% if messages %}
             {% for message in messages %}
-            <div class="alert alert-{{ message.tags }}">
+            <div class="alert alert-{{ message.tags }} break-word" style="border-radius: 8px;">
                 {{ message }}
             </div>
             {% endfor %}
             {% endif %}
 
-            <div class="card shadow">
+            <div class="card shadow settings-card">
                 <div class="card-body p-4">
                     <div class="text-center mb-4">
                         {% if user.profile.avatar %}
-                        <img src="{{ user.profile.avatar.url }}" class="rounded-circle border"
-                             style="width: 120px; height: 120px; object-fit: cover;">
+                        <img src="{{ user.profile.avatar.url }}" class="rounded-circle border avatar-container"
+                             style="width: 120px; height: 120px; object-fit: cover; border-width: 3px !important; border-color: rgba(255, 255, 255, 0.2) !important;">
                         {% else %}
-                        <div class="rounded-circle bg-secondary mx-auto d-flex align-items-center justify-content-center text-white"
-                             style="width: 120px; height: 120px; font-size: 2rem;">
+                        <div class="rounded-circle mx-auto d-flex align-items-center justify-content-center text-white avatar-container"
+                             style="width: 120px; height: 120px; font-size: 2rem; background: linear-gradient(135deg, #2d333b 0%, #1b1f24 100%);">
                             {{ user.first_name|first }}
                         </div>
                         {% endif %}
@@ -33,39 +67,38 @@
                     <form method="post" enctype="multipart/form-data">
                         {% csrf_token %}
 
-                        <h5 class="text-muted mb-3">Особисті дані</h5>
+                        <h5 class="text-muted section-divider">Особисті дані</h5>
 
                         {% for field in u_form %}
-                            <div class="mb-3">
-                                <label class="form-label fw-bold">{{ field.label }}</label>
-                                {{ field }}
-                                {% for error in field.errors %}
-                                    <div class="text-danger small">{{ error }}</div>
-                                {% endfor %}
-                            </div>
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">{{ field.label }}</label>
+                            {{ field }}
+                            {% for error in field.errors %}
+                            <div class="text-danger small break-word">{{ error }}</div>
+                            {% endfor %}
+                        </div>
                         {% endfor %}
 
-                        <hr class="my-4">
-
-                        <h5 class="text-muted mb-3">Профіль</h5>
+                        <h5 class="text-muted section-divider mt-4">Профіль</h5>
 
                         {% for field in p_form %}
-                            <div class="mb-3">
-                                <div class="d-flex justify-content-between align-items-center">
-                                    <label class="form-label fw-bold">{{ field.label }}</label>
-                                    <small class="text-muted counter-display" data-target="{{ field.id_for_label }}"></small>
-                                </div>
-
-                                {{ field }}
-
-                                {% if field.help_text %}
-                                    <div class="form-text">{{ field.help_text }}</div>
-                                {% endif %}
-
-                                {% for error in field.errors %}
-                                    <div class="text-danger small">{{ error }}</div>
-                                {% endfor %}
+                        <div class="mb-3">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <label class="form-label fw-bold">{{ field.label }}</label>
+                                <small class="text-muted counter-display"
+                                       data-target="{{ field.id_for_label }}"></small>
                             </div>
+
+                            {{ field }}
+
+                            {% if field.help_text %}
+                            <div class="form-text text-muted break-word">{{ field.help_text }}</div>
+                            {% endif %}
+
+                            {% for error in field.errors %}
+                            <div class="text-danger small break-word">{{ error }}</div>
+                            {% endfor %}
+                        </div>
                         {% endfor %}
 
                         <div class="d-grid mt-4">
@@ -76,16 +109,17 @@
             </div>
 
             <div class="text-center mt-3">
-                <a href="{% url 'dashboard' %}" class="text-decoration-none">← Повернутися в кабінет</a>
+                <a href="{% url 'dashboard' %}" class="text-decoration-none text-muted"
+                   style="transition: all 0.2s ease;">← Повернутися в кабінет</a>
             </div>
         </div>
     </div>
 </div>
 
 <script>
-    document.addEventListener("DOMContentLoaded", function() {
+    document.addEventListener("DOMContentLoaded", function () {
         const inputsWithLimit = document.querySelectorAll('input[maxlength], textarea[maxlength]');
-        inputsWithLimit.forEach(function(input) {
+        inputsWithLimit.forEach(function (input) {
             const maxLength = input.getAttribute('maxlength');
             const counterId = input.id;
             const counterDisplay = document.querySelector(`.counter-display[data-target="${counterId}"]`);
@@ -100,6 +134,7 @@
                         counterDisplay.classList.remove("text-danger", "fw-bold");
                     }
                 }
+
                 input.addEventListener("input", updateCounter);
                 updateCounter();
             }

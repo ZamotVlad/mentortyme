@@ -1,63 +1,146 @@
 {% extends 'user/base.html' %}
 
-{% block title %}MentorTyme - Ваш час, Ваші правила{% endblock %}
+{% block title %}MentorTyme - Головна{% endblock %}
 
 {% block content %}
-<div class="container py-5">
+<style>
+    .hero-title {
+        font-weight: 900;
+        font-size: 4rem;
+        letter-spacing: -2px;
+        color: var(--neon-blue);
+        text-shadow: 0 0 30px rgba(51, 153, 255, 0.4);
+        margin-bottom: 0;
+    }
+
+    .hero-y {
+        color: var(--neon-gold);
+        display: inline-block;
+        text-shadow: 0 0 30px rgba(255, 215, 0, 0.6);
+    }
+
+    .hero-rocket {
+        display: inline-block;
+        animation: float 3s ease-in-out infinite;
+        filter: drop-shadow(0 0 15px rgba(255, 255, 255, 0.5));
+    }
+
+    @keyframes float {
+        0% {
+            transform: translateY(0px) rotate(0deg);
+        }
+        50% {
+            transform: translateY(-15px) rotate(5deg);
+        }
+        100% {
+            transform: translateY(0px) rotate(0deg);
+        }
+    }
+
+    .role-card {
+        background: rgba(30, 35, 40, 0.6);
+        backdrop-filter: blur(10px);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        border-radius: 20px;
+        padding: 3rem 2rem;
+        height: 100%;
+        transition: all 0.4s ease;
+        text-align: center;
+        position: relative;
+    }
+
+    .role-card:hover {
+        transform: translateY(-10px);
+        background: rgba(40, 45, 55, 0.8);
+    }
+
+    .card-client:hover {
+        border-color: var(--neon-blue);
+        box-shadow: 0 0 40px rgba(51, 153, 255, 0.15);
+    }
+
+    .btn-client {
+        border: 2px solid var(--neon-blue);
+        color: #fff;
+        background: transparent;
+        transition: 0.3s;
+    }
+
+    .btn-client:hover {
+        background: var(--neon-blue);
+        box-shadow: 0 0 25px rgba(51, 153, 255, 0.5);
+    }
+
+    /* Ментор - ВИКОРИСТОВУЄМО СПОКІЙНИЙ КОЛІР */
+    .card-mentor:hover {
+        border-color: var(--gold-muted);
+        box-shadow: 0 0 40px rgba(212, 175, 55, 0.15);
+    }
+</style>
+
+<div class="container py-5 d-flex flex-column justify-content-center" style="min-height: 80vh;">
 
     {% if user.is_authenticated %}
-    <div class="text-center py-5">
-        <h1 class="display-4 fw-bold mb-3">З поверненням, {{ user.first_name }}! 👋</h1>
-        <p class="lead text-muted mb-5">Твій персональний простір готовий до роботи.</p>
+    <div class="row justify-content-center w-100">
+        <div class="col-lg-8">
+            <div class="role-card text-center py-5 d-flex flex-column align-items-center justify-content-center"
+                 style="border-color: var(--neon-blue);">
+                <h1 class="display-4 fw-bold mb-3 text-white">
+                    З поверненням, {{ user.first_name|truncatechars:20 }}! 👋
+                </h1>
+                <p class="lead text-muted mb-5">Твій персональний простір готовий до роботи.</p>
 
-        <div class="d-flex justify-content-center gap-3">
-            <a href="{% url 'dashboard' %}" class="btn btn-primary btn-lg px-5 shadow-sm">
-                🚀 Перейти в Кабінет
-            </a>
-            {% if user.profile.role == 'mentor' %}
-            <a href="{% url 'mentor_profile' user.profile.slug %}" class="btn btn-outline-dark btn-lg px-5 shadow-sm">
-                🔗 Моя візитівка
-            </a>
-            {% endif %}
+                <div class="d-flex justify-content-center flex-wrap gap-3 w-100">
+                    <a href="{% url 'dashboard' %}"
+                       class="btn btn-primary btn-lg px-5 rounded-pill shadow-lg d-inline-flex align-items-center justify-content-center gap-2">
+                        <span>🚀</span> <span>Перейти в Кабінет</span>
+                    </a>
+                    {% if user.profile.role == 'mentor' %}
+                    <a href="{% url 'mentor_profile' user.profile.slug %}"
+                       class="btn btn-outline-light btn-lg px-5 rounded-pill d-inline-flex align-items-center justify-content-center gap-2">
+                        <span>🔗</span> <span>Моя візитівка</span>
+                    </a>
+                    {% endif %}
+                </div>
+            </div>
         </div>
     </div>
 
     {% else %}
     <div class="text-center mb-5">
-        <h1 class="display-3 fw-bold">MentorTyme 🚀</h1>
-        <p class="fs-4 text-muted">Єдина платформа для керування консультаціями.</p>
+        <h1 class="hero-title">
+            MentorT<span class="hero-y">y</span>me <span class="hero-rocket">🚀</span>
+        </h1>
+        <p class="fs-5 mt-3 text-muted" style="letter-spacing: 1px; text-transform: uppercase;">
+            Єдина платформа для керування консультаціями
+        </p>
     </div>
 
     <div class="row align-items-stretch g-4 mt-3">
-
         <div class="col-md-6">
-            <div class="h-100 p-5 bg-light border rounded-3 shadow-sm hover-shadow transition text-center">
-                <div class="mb-3 display-1">🎓</div>
-                <h2>Я Клієнт</h2>
-                <p class="text-muted my-4">
-                    Хочете записатися на урок? <br>
-                    Отримайте доступ до історії своїх занять, керуйте розкладом та насолоджуйтесь.
-                </p>
-                <a href="{% url 'register' %}?role=client" class="btn btn-outline-primary btn-lg w-100">
-                    Створити Акаунт
-                </a>
+            <div class="role-card card-client">
+                <div class="mb-4 display-1">🎓</div>
+                <h2 class="fw-bold mb-3">Я Клієнт</h2>
+                <p class="text-muted mb-5 px-3">Бронюйте уроки, слідкуйте за історією навчання та розвивайтеся.</p>
+                <div class="mt-auto">
+                    <a href="{% url 'register' %}?role=client" class="btn btn-client btn-lg w-100 rounded-pill">Створити
+                        Акаунт</a>
+                </div>
             </div>
         </div>
 
         <div class="col-md-6">
-            <div class="h-100 p-5 text-white bg-dark rounded-3 shadow-sm hover-shadow transition text-center">
-                <div class="mb-3 display-1">👨‍🏫</div>
-                <h2>Я Ментор</h2>
-                <p class="text-white-50 my-4">
-                    Автоматизуйте свій бізнес. <br>
-                    Синхронізація з Google Calendar, персональне посилання та захист від спаму.
-                </p>
-                <a href="{% url 'register' %}?role=mentor" class="btn btn-light btn-lg w-100 fw-bold">
-                    Створити Акаунт
-                </a>
+            <div class="role-card card-mentor">
+                <div class="mb-4 display-1">👨‍🏫</div>
+                <h2 class="fw-bold mb-3">Я Ментор</h2>
+                <p class="text-muted mb-5 px-3">Автоматизуйте графік, синхронізуйте Google Calendar та забудьте про
+                    спам.</p>
+                <div class="mt-auto">
+                    <a href="{% url 'register' %}?role=mentor" class="btn btn-gold-muted btn-lg w-100 rounded-pill">Створити
+                        Акаунт</a>
+                </div>
             </div>
         </div>
-
     </div>
     {% endif %}
 

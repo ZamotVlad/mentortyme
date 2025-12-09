@@ -3,9 +3,40 @@
 {% block title %}Мої послуги | MentorTyme{% endblock %}
 
 {% block content %}
+<style>
+    .service-card {
+        transition: all 0.3s ease;
+    }
+
+    .service-card:hover {
+        transform: translateX(8px);
+        box-shadow: 0 8px 30px rgba(0, 0, 0, 0.5);
+    }
+
+    /* НОВИЙ КЛАС ДЛЯ ЧЕРНЕТОК (замість style="") */
+    .service-draft {
+        opacity: 0.7;
+    }
+
+    .sticky-form {
+        position: sticky;
+        top: 80px;
+    }
+
+    .back-link {
+        transition: all 0.2s ease;
+    }
+
+    .back-link:hover {
+        transform: translateX(-4px);
+        color: var(--neon-blue) !important;
+    }
+</style>
+
 <div class="container py-4">
     <div class="mb-4">
-        <a href="{% url 'dashboard' %}" class="text-decoration-none text-primary fw-bold d-inline-flex align-items-center gap-2 hover-shadow p-1 rounded">
+        <a href="{% url 'dashboard' %}"
+           class="text-decoration-none text-primary fw-bold d-inline-flex align-items-center gap-2 back-link p-1 rounded">
             <span class="fs-5">←</span> Назад у кабінет
         </a>
         <h2 class="mt-3 fw-bold">💼 Управління послугами</h2>
@@ -14,9 +45,10 @@
     <div class="row">
 
         <div class="col-md-4 mb-4">
-            <div class="card shadow-sm border-0 sticky-top" style="top: 20px; z-index: 1;">
-                <div class="card-header bg-light border-bottom">
-                    <h5 class="mb-0 text-dark">📝 Створення послуги</h5>
+            <div class="card shadow-sm border-0 sticky-form" style="z-index: 1;">
+                <div class="card-header border-bottom"
+                     style="background: linear-gradient(135deg, rgba(51, 153, 255, 0.1) 0%, rgba(51, 153, 255, 0.05) 100%);">
+                    <h5 class="mb-0 text-white">📝 Створення послуги</h5>
                 </div>
 
                 <div class="card-body">
@@ -28,14 +60,13 @@
                             <div class="d-flex justify-content-between align-items-center">
                                 <label class="form-label small fw-bold text-muted">{{ field.label }}</label>
                                 {% if field.field.widget.attrs.maxlength %}
-                                    <small class="text-muted counter-display" data-target="{{ field.id_for_label }}"></small>
+                                <small class="text-muted counter-display"
+                                       data-target="{{ field.id_for_label }}"></small>
                                 {% endif %}
                             </div>
-
                             {{ field }}
-
                             {% for error in field.errors %}
-                                <div class="text-danger small">{{ error }}</div>
+                            <div class="text-danger small">{{ error }}</div>
                             {% endfor %}
                         </div>
                         {% endfor %}
@@ -51,52 +82,58 @@
         <div class="col-md-8">
             <div class="d-flex justify-content-between align-items-center mb-3">
                 <h5 class="text-muted mb-0">Ваші активні пропозиції:</h5>
-                <span class="badge bg-secondary">{{ services.count }} активних</span>
+                <span class="badge bg-secondary" style="box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);">{{ services.count }} активних</span>
             </div>
 
             {% if services %}
-                <div class="row g-3">
-                    {% for service in services %}
-                    <div class="col-12">
-                        <div class="card shadow-sm border-start border-4 {% if service.is_active %}border-success{% else %}border-secondary bg-light{% endif %}">
-                            <div class="card-body d-flex justify-content-between align-items-center">
+            <div class="row g-3">
+                {% for service in services %}
+                <div class="col-12">
+                    <div class="card shadow-sm border-start border-4 service-card {% if service.is_active %}border-success{% else %}border-secondary service-draft{% endif %}">
+                        <div class="card-body d-flex justify-content-between align-items-center">
 
-                                <div style="width: 85%;">
-                                    <div class="d-flex align-items-center gap-2">
-                                        <h5 class="mb-0 fw-bold">{{ service.title }}</h5>
-                                        {% if not service.is_active %}
-                                            <span class="badge bg-secondary">Чернетка</span>
-                                        {% endif %}
-                                    </div>
-
-                                    {% if service.description %}
-                                        <p class="text-muted small my-2 fst-italic border-start ps-2 text-break">
-                                            {{ service.description|linebreaksbr }}
-                                        </p>
+                            <div style="width: 85%;">
+                                <div class="d-flex align-items-center gap-2">
+                                    <h5 class="mb-0 fw-bold">{{ service.title }}</h5>
+                                    {% if not service.is_active %}
+                                    <span class="badge bg-secondary">Чернетка</span>
                                     {% endif %}
-
-                                    <div class="text-muted mt-2 small">
-                                        <span class="me-3">⏱ {{ service.duration }} хв</span>
-                                        <span class="text-dark fw-bold bg-light px-2 py-1 rounded">💰 {{ service.price }} грн</span>
-                                    </div>
                                 </div>
 
-                                <form action="{% url 'delete_service' service.id %}" method="post" onsubmit="return confirm('Ви впевнені, що хочете видалити цю послугу?');">
-                                    {% csrf_token %}
-                                    <button type="submit" class="btn btn-outline-danger btn-sm" title="Видалити">🗑</button>
-                                </form>
+                                {% if service.description %}
+                                <p class="text-muted small my-2 fst-italic border-start ps-2 text-break"
+                                   style="border-color: rgba(255, 255, 255, 0.2) !important;">
+                                    {{ service.description|linebreaksbr }}
+                                </p>
+                                {% endif %}
 
+                                <div class="text-muted mt-2 small">
+                                    <span class="me-3">⏱ {{ service.duration }} хв</span>
+                                    <span class="text-white fw-bold bg-secondary px-2 py-1 rounded"
+                                          style="box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);">💰 {{ service.price }} грн</span>
+                                </div>
                             </div>
+
+                            <form action="{% url 'delete_service' service.id %}" method="post"
+                                  onsubmit="return confirm('Ви впевнені, що хочете видалити цю послугу?');">
+                                {% csrf_token %}
+                                <button type="submit" class="btn btn-outline-danger btn-sm" title="Видалити"
+                                        style="transition: all 0.2s ease;">🗑
+                                </button>
+                            </form>
+
                         </div>
                     </div>
-                    {% endfor %}
                 </div>
+                {% endfor %}
+            </div>
             {% else %}
-                <div class="text-center py-5 border rounded bg-white">
-                    <div class="display-1 mb-3">📂</div>
-                    <h4>Список послуг порожній</h4>
-                    <p class="text-muted">Заповніть форму зліва, щоб додати першу послугу.</p>
-                </div>
+            <div class="text-center py-5 border rounded"
+                 style="background: rgba(255, 255, 255, 0.02); border-color: rgba(255, 255, 255, 0.1) !important;">
+                <div class="display-1 mb-3">📂</div>
+                <h4>Список послуг порожній</h4>
+                <p class="text-muted">Заповніть форму зліва, щоб додати першу послугу.</p>
+            </div>
             {% endif %}
         </div>
 
@@ -104,28 +141,22 @@
 </div>
 
 <script>
-    document.addEventListener("DOMContentLoaded", function() {
-
-        // 1. АВТОРОЗШИРЕННЯ TEXTAREA
+    document.addEventListener("DOMContentLoaded", function () {
         const textareas = document.querySelectorAll('textarea');
 
         function autoResize() {
-            this.style.height = 'auto'; // Скидаємо висоту
-            this.style.height = (this.scrollHeight) + 'px'; // Ставимо нову по контенту
+            this.style.height = 'auto';
+            this.style.height = (this.scrollHeight) + 'px';
         }
 
         textareas.forEach(textarea => {
             textarea.addEventListener('input', autoResize);
-            // Ініціалізація (якщо там вже щось написано)
             textarea.style.height = 'auto';
             textarea.style.height = (textarea.scrollHeight) + 'px';
         });
 
-
-        // 2. ЛІЧИЛЬНИКИ СИМВОЛІВ
         const inputsWithLimit = document.querySelectorAll('input[maxlength], textarea[maxlength]');
-
-        inputsWithLimit.forEach(function(input) {
+        inputsWithLimit.forEach(function (input) {
             const maxLength = input.getAttribute('maxlength');
             const counterId = input.id;
             const counterDisplay = document.querySelector(`.counter-display[data-target="${counterId}"]`);
@@ -134,13 +165,13 @@
                 function updateCounter() {
                     const currentLength = input.value.length;
                     counterDisplay.textContent = `${currentLength} / ${maxLength}`;
-
                     if (currentLength >= maxLength) {
                         counterDisplay.classList.add("text-danger", "fw-bold");
                     } else {
                         counterDisplay.classList.remove("text-danger", "fw-bold");
                     }
                 }
+
                 input.addEventListener("input", updateCounter);
                 updateCounter();
             }
