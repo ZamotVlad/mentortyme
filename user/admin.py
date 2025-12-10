@@ -25,7 +25,6 @@ class WorkingHourAdmin(admin.ModelAdmin):
 class BookingAdmin(admin.ModelAdmin):
     list_display = ('id', 'mentor', 'client', 'service', 'start_time', 'status')
     list_filter = ('status', 'start_time')
-    # Ціна може бути пустою, якщо бронювання старе, тому показуємо акуратно
     readonly_fields = ('price_at_booking',)
 
 @admin.register(Review)

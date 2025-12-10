@@ -5,9 +5,8 @@ from django.shortcuts import render, get_object_or_404, redirect
 from django.http import HttpRequest, HttpResponse
 from django.utils import timezone
 from django.contrib import messages
-from django.core.paginator import Paginator  # <--- ВАЖЛИВИЙ ІМПОРТ
+from django.core.paginator import Paginator
 
-# Імпорти наших форм та моделей
 from .forms import (
     CustomUserCreationForm, UserUpdateForm, ProfileUpdateForm,
     ServiceForm, ReviewForm
@@ -15,8 +14,6 @@ from .forms import (
 from .models import Service, Profile, Booking, WorkingHour, Review
 from .utils import get_available_slots, create_google_event, get_google_calendar_service
 
-
-# --- ГОЛОВНА ТА РЕЄСТРАЦІЯ ---
 
 def home(request: HttpRequest) -> HttpResponse:
     return render(request, 'user/home.html')
@@ -36,15 +33,10 @@ def register(request: HttpRequest) -> HttpResponse:
     if request.method == 'POST':
         form = CustomUserCreationForm(request.POST)
         if form.is_valid():
-            # 1. Створюємо юзера.
-            # В цей момент СИГНАЛ автоматично створює порожній профіль.
             user = form.save()
 
-            # 2. Беремо роль із сесії
             role = request.session.get('registration_role', 'client')
 
-            # 3. Просто оновлюємо роль у вже існуючому профілі
-            # (Ми впевнені, що user.profile існує завдяки signals.py)
             user.profile.role = role
             user.profile.save()
 
@@ -59,33 +51,22 @@ def register(request: HttpRequest) -> HttpResponse:
 
     return render(request, 'registration/register.html', {'form': form})
 
-
-# --- ОСОБИСТИЙ КАБІНЕТ (З ПАГІНАЦІЄЮ) ---
-
 @login_required
 def dashboard(request: HttpRequest) -> HttpResponse:
     profile = request.user.profile
     now = timezone.now()
 
-    # --- АВТОМАТИЧНЕ ЗАВЕРШЕННЯ МИНУЛИХ УРОКІВ ---
-    # Знаходимо всі заняття, які мають статус 'confirmed' (підтверджено),
-    # але час закінчення яких вже минув (end_time < now).
-    # Масово змінюємо їх статус на 'completed' (завершено).
     Booking.objects.filter(
         status='confirmed',
         end_time__lt=now
     ).update(status='completed')
-    # ---------------------------------------------
 
-    # --- 1. КЛІЄНТ ---
-    # Активні (майбутні)
     client_active = Booking.objects.filter(
         client=profile,
         start_time__gte=now,
-        status='confirmed' # Додатково фільтруємо, щоб показувати тільки підтверджені
+        status='confirmed'
     ).select_related('mentor__user', 'service').order_by('start_time')
 
-    # Історія (минулі)
     client_history_list = Booking.objects.filter(
         client=profile,
         start_time__lt=now
@@ -95,20 +76,17 @@ def dashboard(request: HttpRequest) -> HttpResponse:
     page_number_client = request.GET.get('client_page')
     client_history = paginator_client.get_page(page_number_client)
 
-    # --- 2. МЕНТОР ---
     mentor_active = []
     mentor_history = []
     is_mentor = profile.role == 'mentor'
 
     if is_mentor:
-        # Активні (майбутні)
         mentor_active = Booking.objects.filter(
             mentor=profile,
             start_time__gte=now,
             status='confirmed'
         ).select_related('client__user', 'service').order_by('start_time')
 
-        # Історія (минулі)
         mentor_history_list = Booking.objects.filter(
             mentor=profile,
             start_time__lt=now
@@ -126,8 +104,6 @@ def dashboard(request: HttpRequest) -> HttpResponse:
         'is_mentor': is_mentor
     })
 
-
-# --- НАЛАШТУВАННЯ ПРОФІЛЮ ---
 
 @login_required
 def profile_settings(request: HttpRequest) -> HttpResponse:
@@ -149,8 +125,6 @@ def profile_settings(request: HttpRequest) -> HttpResponse:
         'p_form': p_form
     })
 
-
-# --- УПРАВЛІННЯ ПОСЛУГАМИ ---
 
 @login_required
 def my_services(request: HttpRequest) -> HttpResponse:
@@ -183,8 +157,6 @@ def delete_service(request: HttpRequest, service_id: int) -> HttpResponse:
     messages.warning(request, 'Послугу видалено.')
     return redirect('my_services')
 
-
-# --- ГРАФІК РОБОТИ ---
 
 @login_required
 def schedule_settings(request: HttpRequest) -> HttpResponse:
@@ -234,8 +206,6 @@ def schedule_settings(request: HttpRequest) -> HttpResponse:
     return render(request, 'user/schedule_settings.html', {'schedule': schedule_data})
 
 
-# --- ПУБЛІЧНА СТОРІНКА МЕНТОРА ---
-
 def mentor_profile(request: HttpRequest, slug: str) -> HttpResponse:
     mentor = get_object_or_404(Profile, slug=slug, role='mentor')
     services = mentor.services.filter(is_active=True)
@@ -245,8 +215,6 @@ def mentor_profile(request: HttpRequest, slug: str) -> HttpResponse:
         'services': services
     })
 
-
-# --- БРОНЮВАННЯ ---
 
 @login_required
 def service_detail(request: HttpRequest, service_id: int) -> HttpResponse:
@@ -263,7 +231,6 @@ def service_detail(request: HttpRequest, service_id: int) -> HttpResponse:
             pass
 
     if request.method == 'POST':
-        # 1. АНТИ-СПАМ
         has_active = Booking.objects.filter(
             client=request.user.profile,
             mentor=service.mentor,
@@ -272,7 +239,6 @@ def service_detail(request: HttpRequest, service_id: int) -> HttpResponse:
         ).exists()
 
         if has_active:
-            # Це повідомлення тепер з'явиться в dashboard.html!
             messages.warning(request, '⚠️ Ви вже маєте активний запис до цього ментора. Дочекайтесь завершення.')
             return redirect('dashboard')
 
@@ -286,7 +252,6 @@ def service_detail(request: HttpRequest, service_id: int) -> HttpResponse:
             summary = f"{service.title} - {request.user.first_name}"
             google_description = f"Клієнт: {request.user.first_name}\nEmail: {request.user.email}\n📞 {note_text}"
 
-            # 2. КАЛЕНДАР МЕНТОРА
             mentor_event_id = None
             if service.mentor.user.social_auth.exists():
                 try:
@@ -300,7 +265,6 @@ def service_detail(request: HttpRequest, service_id: int) -> HttpResponse:
                 except Exception:
                     pass
 
-            # 3. КАЛЕНДАР КЛІЄНТА (Зберігаємо ID!)
             client_event_id = None
             if request.user.social_auth.exists():
                 try:
@@ -314,15 +278,14 @@ def service_detail(request: HttpRequest, service_id: int) -> HttpResponse:
                 except Exception:
                     pass
 
-            # 4. ЗБЕРІГАЄМО ОБИДВА ID
             Booking.objects.create(
                 client=request.user.profile,
                 mentor=service.mentor,
                 service=service,
                 start_time=start_dt,
                 end_time=start_dt + datetime.timedelta(minutes=service.duration),
-                google_event_id=mentor_event_id,  # ID Ментора
-                client_google_event_id=client_event_id,  # ID Клієнта (НОВЕ)
+                google_event_id=mentor_event_id,
+                client_google_event_id=client_event_id,
                 price_at_booking=service.price,
                 status='confirmed',
                 note=note_text
@@ -347,7 +310,6 @@ def cancel_booking(request: HttpRequest, booking_id: int) -> HttpResponse:
         messages.error(request, "Не можна скасувати минуле заняття.")
         return redirect('dashboard')
 
-    # 1. Видаляємо у МЕНТОРА
     if booking.google_event_id and booking.mentor.user.social_auth.exists():
         try:
             service = get_google_calendar_service(booking.mentor.user)
@@ -356,7 +318,6 @@ def cancel_booking(request: HttpRequest, booking_id: int) -> HttpResponse:
         except Exception as e:
             print(f"Помилка видалення у ментора: {e}")
 
-    # 2. Видаляємо у КЛІЄНТА (Тепер це спрацює!)
     if booking.client_google_event_id and request.user.social_auth.exists():
         try:
             service = get_google_calendar_service(request.user)
@@ -369,8 +330,6 @@ def cancel_booking(request: HttpRequest, booking_id: int) -> HttpResponse:
     messages.info(request, "Бронювання скасовано, календар оновлено.")
     return redirect('dashboard')
 
-
-# --- ВІДГУКИ ---
 
 @login_required
 def add_review(request: HttpRequest, booking_id: int) -> HttpResponse:

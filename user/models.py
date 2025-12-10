@@ -10,13 +10,11 @@ class User(AbstractUser):
 
 
 class Profile(models.Model):
-    # Варіанти для вибору ролі
     ROLE_CHOICES = (
         ('client', 'Клієнт'),
         ('mentor', 'Ментор'),
     )
 
-    # Варіанти для вибору статі
     GENDER_CHOICES = (
         ('male', 'Чоловік'),
         ('female', 'Жінка'),
@@ -28,7 +26,6 @@ class Profile(models.Model):
 
     avatar = models.ImageField(upload_to='avatars/', default='avatars/default.png', blank=True)
 
-    # ВИПРАВЛЕНО: додали default=''
     bio = models.TextField(max_length=500, blank=True, default='', verbose_name="Про себе")
 
     age = models.PositiveIntegerField(blank=True, null=True, verbose_name="Вік")
@@ -37,12 +34,10 @@ class Profile(models.Model):
 
     position = models.CharField(max_length=50, blank=True, null=True, verbose_name="Посада")
 
-    # ВИПРАВЛЕНО: додали null=True, щоб уникнути конфлікту при створенні
     slug = models.SlugField(unique=True, blank=True, null=True)
 
     def save(self, *args, **kwargs):
         if not self.slug:
-            # Генеруємо слаг з імені або юзернейму
             base_slug = slugify(self.user.first_name + " " + self.user.last_name)
             if not base_slug:
                 base_slug = slugify(self.user.username)
@@ -53,7 +48,6 @@ class Profile(models.Model):
         return f"{self.user.username} Profile"
 
     def get_average_rating(self):
-        # Шукаємо всі бронювання цього ментора, у яких є відгук
         reviews = Review.objects.filter(booking__mentor=self)
         if reviews.exists():
             return round(reviews.aggregate(Avg('rating'))['rating__avg'], 1)

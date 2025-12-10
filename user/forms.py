@@ -17,7 +17,6 @@ class UserUpdateForm(forms.ModelForm):
         model = User
         fields = ['first_name', 'last_name', 'email']
         widgets = {
-            # ОНОВЛЕНО: 70 символів для імені та прізвища
             'first_name': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Іван', 'maxlength': '70'}),
             'last_name': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Петренко', 'maxlength': '70'}),
             'email': forms.EmailInput(attrs={'class': 'form-control', 'placeholder': 'email@example.com'}),
@@ -36,17 +35,14 @@ class ProfileUpdateForm(forms.ModelForm):
         widgets = {
             'avatar': forms.FileInput(attrs={'class': 'form-control'}),
 
-            # Посада і Місто - по 50 символів
             'position': forms.TextInput(
                 attrs={'class': 'form-control', 'placeholder': 'Напр. Senior Python Developer', 'maxlength': '50'}),
             'city': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Київ, Україна', 'maxlength': '50'}),
 
-            # Вік - числа від 14 до 100
             'age': forms.NumberInput(attrs={'class': 'form-control', 'placeholder': '25', 'max': '100'}),
 
             'gender': forms.Select(attrs={'class': 'form-select'}),
 
-            # Біографія - 500 символів
             'bio': forms.Textarea(
                 attrs={'rows': 4, 'class': 'form-control', 'placeholder': 'Розкажіть про свій досвід...',
                        'maxlength': '500'}),
@@ -76,13 +72,11 @@ class ProfileUpdateForm(forms.ModelForm):
 class ServiceForm(forms.ModelForm):
     class Meta:
         model = Service
-        # Додали 'description' у список полів
         fields = ['title', 'description', 'duration', 'price', 'is_active']
         widgets = {
             'title': forms.TextInput(
                 attrs={'class': 'form-control', 'placeholder': 'Напр. Менторська сесія Python', 'maxlength': '50'}),
 
-            # НОВЕ ПОЛЕ:
             'description': forms.Textarea(attrs={'class': 'form-control', 'rows': 3,
                                                  'placeholder': 'Коротко опишіть, що входить у вартість (необов\'язково)',
                                                  'maxlength': '500'}),
@@ -107,12 +101,11 @@ class ReviewForm(forms.ModelForm):
         fields = ['rating', 'comment']
         widgets = {
             'rating': forms.Select(attrs={'class': 'form-select'}, choices=[(i, f'{i} ⭐') for i in range(5, 0, -1)]),
-            # ДОДАЛИ maxlength і стилі
             'comment': forms.Textarea(attrs={
                 'class': 'form-control',
                 'rows': 4,
                 'placeholder': 'Як пройшло заняття? Що сподобалось?',
-                'maxlength': '500',  # Обмеження
+                'maxlength': '500',
                 'style': 'resize: none'
             }),
         }

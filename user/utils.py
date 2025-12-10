@@ -2,11 +2,10 @@ from google.oauth2.credentials import Credentials
 from googleapiclient.discovery import build
 from django.conf import settings
 import datetime
-from zoneinfo import ZoneInfo  # <--- ВАЖЛИВИЙ ІМПОРТ
+from zoneinfo import ZoneInfo
 from .models import Booking, WorkingHour
 
 
-# --- 1. АВТОРИЗАЦІЯ (Без змін) ---
 def get_google_calendar_service(user):
     if not hasattr(user, 'social_auth'):
         return None
@@ -28,25 +27,18 @@ def get_google_calendar_service(user):
     return build('calendar', 'v3', credentials=creds)
 
 
-# --- 2. ОТРИМАННЯ ЗАЙНЯТОСТІ (ВИПРАВЛЕНО) ---
 def get_busy_periods(user, date_str):
     service = get_google_calendar_service(user)
     if not service:
         return []
 
-    # 1. Створюємо об'єкт дати
     date_obj = datetime.datetime.strptime(date_str, '%Y-%m-%d').date()
 
-    # 2. Визначаємо часовий пояс Києва
     kyiv_tz = ZoneInfo('Europe/Kyiv')
 
-    # 3. Визначаємо початок і кінець дня САМЕ В КИЄВІ
-    # (00:00 Київ і 23:59:59 Київ)
     local_start = datetime.datetime.combine(date_obj, datetime.time.min, tzinfo=kyiv_tz)
     local_end = datetime.datetime.combine(date_obj, datetime.time.max, tzinfo=kyiv_tz)
 
-    # 4. Конвертуємо цей час в UTC для запиту до Google
-    # (Бо Google API розуміє тільки UTC 'Z')
     time_min = local_start.astimezone(datetime.timezone.utc).isoformat().replace('+00:00', 'Z')
     time_max = local_end.astimezone(datetime.timezone.utc).isoformat().replace('+00:00', 'Z')
 
@@ -64,7 +56,6 @@ def get_busy_periods(user, date_str):
         return []
 
 
-# --- 3. СТВОРЕННЯ ПОДІЇ (ВИПРАВЛЕНО TimeZone) ---
 def create_google_event(user, start_dt, duration_minutes, summary, description=None):
     service = get_google_calendar_service(user)
     if not service:
@@ -75,7 +66,6 @@ def create_google_event(user, start_dt, duration_minutes, summary, description=N
     event_body = {
         'summary': summary,
         'description': description,
-        # Явно вказуємо timezone, щоб Google знав, що це Київський час
         'start': {
             'dateTime': start_dt.isoformat(),
             'timeZone': 'Europe/Kyiv'
@@ -94,7 +84,6 @@ def create_google_event(user, start_dt, duration_minutes, summary, description=N
         return None
 
 
-# --- 4. ДОПОМІЖНА ФУНКЦІЯ ---
 def is_time_busy(slot_start, slot_end, busy_intervals):
     for busy in busy_intervals:
         busy_start = busy['start']
@@ -104,7 +93,6 @@ def is_time_busy(slot_start, slot_end, busy_intervals):
     return False
 
 
-# --- 5. ГОЛОВНИЙ МОЗОК: РОЗРАХУНОК СЛОТІВ (ВИПРАВЛЕНО ПАРСИНГ) ---
 def get_available_slots(user, date_obj, duration_minutes):
     day_num = date_obj.weekday()
     working_hour = WorkingHour.objects.filter(mentor__user=user, day_of_week=day_num).first()
@@ -117,29 +105,22 @@ def get_available_slots(user, date_obj, duration_minutes):
 
     all_busy_intervals = []
 
-    # Визначаємо зону для конвертації
     kyiv_tz = ZoneInfo('Europe/Kyiv')
 
-    # А) Google Calendar (ПРАВИЛЬНА ОБРОБКА)
     google_busy = get_busy_periods(user, date_obj.strftime('%Y-%m-%d'))
 
     for item in google_busy:
-        # 1. Парсимо час UTC, який віддав Google
-        # replace('Z', '+00:00') потрібен, бо fromisoformat в старих версіях Python не любить Z
         s_utc = datetime.datetime.fromisoformat(item['start'].replace('Z', '+00:00'))
         e_utc = datetime.datetime.fromisoformat(item['end'].replace('Z', '+00:00'))
 
-        # 2. Конвертуємо UTC -> Kyiv Time (бібліотека сама врахує літній/зимовий час)
         s_local_aware = s_utc.astimezone(kyiv_tz)
         e_local_aware = e_utc.astimezone(kyiv_tz)
 
-        # 3. Робимо час "наївним" (naive), щоб порівнювати з work_start/work_end
         s_local = s_local_aware.replace(tzinfo=None)
         e_local = e_local_aware.replace(tzinfo=None)
 
         all_busy_intervals.append({'start': s_local, 'end': e_local})
 
-    # Б) Локальні бронювання
     local_bookings = Booking.objects.filter(
         mentor__user=user,
         start_time__date=date_obj,
@@ -151,7 +132,6 @@ def get_available_slots(user, date_obj, duration_minutes):
             'end': booking.end_time.replace(tzinfo=None)
         })
 
-    # Нарізаємо слоти
     available_slots = []
     current_slot = work_start
 
