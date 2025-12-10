@@ -12,12 +12,10 @@
         border-radius: 0.5rem;
         transition: all 0.2s ease;
     }
-
     input[type="date"]:focus {
         border-color: var(--neon-blue);
         box-shadow: 0 0 0 0.25rem rgba(51, 153, 255, 0.15);
     }
-
     input[type="date"]::-webkit-calendar-picker-indicator {
         filter: invert(1);
         cursor: pointer;
@@ -29,7 +27,6 @@
         border-radius: 10px;
         transition: all 0.3s ease;
     }
-
     .date-picker-block:hover {
         border-color: rgba(51, 153, 255, 0.3);
         box-shadow: 0 4px 15px rgba(51, 153, 255, 0.1);
@@ -38,7 +35,6 @@
     .mentor-card {
         transition: all 0.3s ease;
     }
-
     .mentor-card:hover {
         transform: translateY(-4px);
     }
@@ -46,7 +42,6 @@
     .time-slot-btn {
         transition: all 0.2s ease;
     }
-
     .time-slot-btn:hover {
         transform: scale(1.05);
         box-shadow: 0 4px 15px rgba(40, 167, 69, 0.3);
@@ -60,26 +55,21 @@
         <div class="col-md-5 mb-4">
             <div class="card shadow-sm border-0 h-100 mentor-card">
                 {% if service.mentor.avatar %}
-                <img src="{{ service.mentor.avatar.url }}" class="card-img-top"
-                     style="height: 300px; object-fit: cover; border-radius: 0.5rem 0.5rem 0 0;">
+                    <img src="{{ service.mentor.avatar.url }}" class="card-img-top" style="height: 300px; object-fit: cover; border-radius: 0.5rem 0.5rem 0 0;">
                 {% else %}
-                <div class="text-white text-center py-5"
-                     style="height: 300px; display: flex; align-items: center; justify-content: center; background: linear-gradient(135deg, #2d333b 0%, #1b1f24 100%);">
-                    <span class="display-1">{{ service.mentor.user.first_name|first }}</span>
-                </div>
+                    <div class="text-white text-center py-5" style="height: 300px; display: flex; align-items: center; justify-content: center; background: linear-gradient(135deg, #2d333b 0%, #1b1f24 100%);">
+                        <span class="display-1">{{ service.mentor.user.first_name|first }}</span>
+                    </div>
                 {% endif %}
 
                 <div class="card-body">
                     <h2 class="fw-bold">{{ service.title }}</h2>
-                    <h5 class="text-muted mb-3">Ментор: <a href="{% url 'mentor_profile' service.mentor.slug %}"
-                                                           class="text-decoration-none"
-                                                           style="color: var(--neon-blue); transition: all 0.2s ease;">{{
-                        service.mentor.user.first_name }} {{ service.mentor.user.last_name }}</a></h5>
+                    <h5 class="text-muted mb-3">Ментор: <a href="{% url 'mentor_profile' service.mentor.slug %}" class="text-decoration-none" style="color: var(--neon-blue); transition: all 0.2s ease;">{{ service.mentor.user.first_name }} {{ service.mentor.user.last_name }}</a></h5>
 
                     <hr style="border-color: rgba(255, 255, 255, 0.1);">
 
                     {% if service.description %}
-                    <p class="text-muted fst-italic">{{ service.description|linebreaksbr }}</p>
+                        <p class="text-muted fst-italic">{{ service.description|linebreaksbr }}</p>
                     {% endif %}
 
                     <ul class="list-group list-group-flush mt-3 bg-transparent">
@@ -101,9 +91,9 @@
                 <h3 class="mb-4 text-white">📅 Бронювання часу</h3>
 
                 {% if error_message %}
-                <div class="alert alert-danger mt-3" style="border-radius: 8px;">
-                    🛑 {{ error_message }}
-                </div>
+                    <div class="alert alert-danger mt-3" style="border-radius: 8px;">
+                        🛑 {{ error_message }}
+                    </div>
                 {% endif %}
 
                 <form method="get" class="row g-3 mt-2 align-items-center date-picker-block p-3 mx-0">
@@ -111,8 +101,7 @@
                         <label class="fw-bold text-muted me-2">Дата:</label>
                     </div>
                     <div class="col-auto">
-                        <input type="date" name="date" class="form-control text-white" value="{{ selected_date }}"
-                               required>
+                        <input type="date" name="date" class="form-control text-white" value="{{ selected_date }}" required>
                     </div>
                     <div class="col-auto">
                         <button type="submit" class="btn btn-primary">Показати слоти</button>
@@ -122,47 +111,42 @@
                 <hr class="my-4" style="border-color: rgba(255, 255, 255, 0.15);">
 
                 {% if selected_date %}
-                <h5 class="mb-3 text-white">Доступно на <span
-                        style="color: var(--neon-blue);">{{ selected_date }}</span>:</h5>
+                    <h5 class="mb-3 text-white">Доступно на <span style="color: var(--neon-blue);">{{ selected_date }}</span>:</h5>
 
-                <form method="post">
-                    {% csrf_token %}
-                    <input type="hidden" name="date" value="{{ selected_date }}">
+                    <form method="post">
+                        {% csrf_token %}
+                        <input type="hidden" name="date" value="{{ selected_date }}">
 
-                    <div class="mb-4">
-                        <div class="d-flex justify-content-between align-items-center mb-1">
-                            <label for="note" class="form-label fw-bold mb-0 text-white">📞 Як з вами зв'язатися?</label>
-                            <small class="text-muted" id="char-counter">0 / 500</small>
+                        <div class="mb-4">
+                            <div class="d-flex justify-content-between align-items-center mb-1">
+                                <label for="note" class="form-label fw-bold mb-0 text-white">📞 Як з вами зв'язатися?</label>
+                                <small class="text-muted" id="char-counter">0 / 500</small>
+                            </div>
+
+                            <textarea name="note" id="note" class="form-control bg-dark text-white border-secondary" rows="3"
+                                      placeholder="Напишіть ваш Telegram (@user), номер телефону або залиште коментар..."
+                                      required maxlength="500" style="resize: none;"></textarea>
+
+                            <div class="form-text small text-muted">Ментор побачить це повідомлення у своєму кабінеті.</div>
                         </div>
 
-                        <textarea name="note" id="note" class="form-control bg-dark text-white border-secondary"
-                                  rows="3"
-                                  placeholder="Напишіть ваш Telegram (@user), номер телефону або залиште коментар..."
-                                  required maxlength="500" style="resize: none;"></textarea>
+                        <p class="mb-2 fw-bold text-muted">Оберіть час для запису:</p>
 
-                        <div class="form-text small text-muted">Ментор побачить це повідомлення у своєму кабінеті.</div>
-                    </div>
-
-                    <p class="mb-2 fw-bold text-muted">Оберіть час для запису:</p>
-
-                    <div class="d-flex flex-wrap gap-2">
-                        {% for slot in slots %}
-                        <button type="submit" name="time" value="{{ slot }}"
-                                class="btn btn-outline-success btn-lg px-4 py-2 time-slot-btn">{{ slot }}
-                        </button>
-                        {% empty %}
-                        <div class="alert w-100 text-center border-warning text-warning"
-                             style="background-color: rgba(51, 39, 1, 0.5); border-radius: 8px;">
-                            На жаль, на цей день вільних місць немає 😔 <br>
-                            <small>Спробуйте обрати іншу дату вище.</small>
+                        <div class="d-flex flex-wrap gap-2">
+                            {% for slot in slots %}
+                                <button type="submit" name="time" value="{{ slot }}" class="btn btn-outline-success btn-lg px-4 py-2 time-slot-btn">{{ slot }}</button>
+                            {% empty %}
+                                <div class="alert w-100 text-center border-warning text-warning" style="background-color: rgba(51, 39, 1, 0.5); border-radius: 8px;">
+                                    На жаль, на цей день вільних місць немає 😔 <br>
+                                    <small>Спробуйте обрати іншу дату вище.</small>
+                                </div>
+                            {% endfor %}
                         </div>
-                        {% endfor %}
-                    </div>
-                </form>
+                    </form>
                 {% else %}
-                <div class="text-center py-5">
-                    <p class="text-muted fs-5">☝️ Оберіть дату в календарі, щоб побачити розклад.</p>
-                </div>
+                    <div class="text-center py-5">
+                        <p class="text-muted fs-5">☝️ Оберіть дату в календарі, щоб побачити розклад.</p>
+                    </div>
                 {% endif %}
             </div>
         </div>
@@ -170,13 +154,13 @@
 </div>
 
 <script>
-    document.addEventListener("DOMContentLoaded", function () {
+    document.addEventListener("DOMContentLoaded", function() {
         const noteInput = document.getElementById("note");
         const counter = document.getElementById("char-counter");
         const maxLength = 500;
 
         if (noteInput && counter) {
-            noteInput.addEventListener("input", function () {
+            noteInput.addEventListener("input", function() {
                 const currentLength = noteInput.value.length;
                 counter.textContent = `${currentLength} / ${maxLength}`;
 

@@ -9,7 +9,7 @@ class UserAdmin(admin.ModelAdmin):
 @admin.register(Profile)
 class ProfileAdmin(admin.ModelAdmin):
     list_display = ('user', 'role', 'slug')
-    list_filter = ('role',) # Фільтр збоку (Ментор/Клієнт)
+    list_filter = ('role',)
 
 @admin.register(Service)
 class ServiceAdmin(admin.ModelAdmin):

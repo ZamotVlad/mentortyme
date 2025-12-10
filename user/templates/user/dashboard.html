@@ -21,54 +21,43 @@
 
         <div class="d-flex align-items-stretch gap-2">
             {% if user.social_auth.exists %}
-            <button class="btn btn-primary opacity-75 d-flex align-items-center" disabled title="Календар підключено"
-                    style="height: 38px; font-size: 0.875rem;">
+            <button class="btn btn-primary opacity-75 d-flex align-items-center" disabled title="Календар підключено" style="height: 38px; font-size: 0.875rem;">
                 ✅ Google Calendar
             </button>
             {% else %}
-            <a href="{% url 'social:begin' 'google-oauth2' %}?next={{ request.path }}"
-               class="btn btn-primary d-flex align-items-center" style="height: 38px; font-size: 0.875rem;">
+            <a href="{% url 'social:begin' 'google-oauth2' %}?next={{ request.path }}" class="btn btn-primary d-flex align-items-center" style="height: 38px; font-size: 0.875rem;">
                 📅 Google Calendar
             </a>
             {% endif %}
 
             {% if is_mentor %}
             <div class="d-flex gap-2">
-                <a href="{% url 'my_services' %}" class="btn btn-primary d-flex align-items-center"
-                   style="height: 38px; font-size: 0.875rem;">💼 Послуги</a>
-                <a href="{% url 'schedule_settings' %}" class="btn btn-primary d-flex align-items-center"
-                   style="height: 38px; font-size: 0.875rem;">🕒 Графік</a>
+                <a href="{% url 'my_services' %}" class="btn btn-primary d-flex align-items-center" style="height: 38px; font-size: 0.875rem;">💼 Послуги</a>
+                <a href="{% url 'schedule_settings' %}" class="btn btn-primary d-flex align-items-center" style="height: 38px; font-size: 0.875rem;">🕒 Графік</a>
             </div>
-            <a href="{% url 'mentor_profile' user.profile.slug %}"
-               class="btn btn-outline-light d-flex align-items-center" target="_blank"
-               style="height: 38px; font-size: 0.875rem;">Візитівка 🔗</a>
+            <a href="{% url 'mentor_profile' user.profile.slug %}" class="btn btn-outline-light d-flex align-items-center" target="_blank" style="height: 38px; font-size: 0.875rem;">Візитівка 🔗</a>
             {% endif %}
 
-            <a href="{% url 'profile_settings' %}"
-               class="btn btn-secondary d-flex align-items-center justify-content-center"
-               style="height: 38px; width: 38px; font-size: 0.875rem;">⚙️</a>
+            <a href="{% url 'profile_settings' %}" class="btn btn-secondary d-flex align-items-center justify-content-center" style="height: 38px; width: 38px; font-size: 0.875rem;">⚙️</a>
         </div>
     </div>
 
     <ul class="nav nav-tabs mb-4" id="dashboardTabs" role="tablist">
         <li class="nav-item" role="presentation">
-            <button class="nav-link" id="active-tab" data-bs-toggle="tab" data-bs-target="#active" type="button"
-                    role="tab">
+            <button class="nav-link" id="active-tab" data-bs-toggle="tab" data-bs-target="#active" type="button" role="tab">
                 📅 Мої заняття
             </button>
         </li>
 
         <li class="nav-item" role="presentation">
-            <button class="nav-link" id="history-tab" data-bs-toggle="tab" data-bs-target="#history" type="button"
-                    role="tab">
+            <button class="nav-link" id="history-tab" data-bs-toggle="tab" data-bs-target="#history" type="button" role="tab">
                 📜 Історія
             </button>
         </li>
 
         {% if is_mentor %}
         <li class="nav-item" role="presentation">
-            <button class="nav-link fw-bold text-primary" id="mentor-tab" data-bs-toggle="tab" data-bs-target="#mentor"
-                    type="button" role="tab">
+            <button class="nav-link fw-bold text-primary" id="mentor-tab" data-bs-toggle="tab" data-bs-target="#mentor" type="button" role="tab">
                 👨‍🏫 Актуальні учні
             </button>
         </li>
@@ -84,15 +73,11 @@
                     <div>
                         <h5 class="mb-1">{{ booking.service.title }}</h5>
                         <p class="mb-1 text-muted">
-                            Ментор: <strong class="text-white">
-                            {{ booking.mentor.user.first_name|truncatechars:12 }}
-                            {{ booking.mentor.user.last_name|truncatechars:12 }}
-                        </strong>
+                            Ментор: <strong class="text-white">{{ booking.mentor.user.first_name }} {{ booking.mentor.user.last_name }}</strong>
                         </p>
                         <small class="text-primary fw-bold">📅 {{ booking.start_time|date:"d.m.Y H:i" }}</small>
                     </div>
-                    <form action="{% url 'cancel_booking' booking.id %}" method="post"
-                          onsubmit="return confirm('Скасувати?');">
+                    <form action="{% url 'cancel_booking' booking.id %}" method="post" onsubmit="return confirm('Скасувати?');">
                         {% csrf_token %}
                         <button type="submit" class="btn btn-outline-danger btn-sm">X</button>
                     </form>
@@ -110,15 +95,13 @@
             <div class="d-flex justify-content-center mb-4 mt-2">
                 <ul class="nav nav-pills" id="history-pills-tab" role="tablist">
                     <li class="nav-item">
-                        <button class="nav-link active rounded-pill px-4" id="pills-student-tab" data-bs-toggle="pill"
-                                data-bs-target="#pills-student" type="button">
+                        <button class="nav-link active rounded-pill px-4" id="pills-student-tab" data-bs-toggle="pill" data-bs-target="#pills-student" type="button">
                             🎓 Я вчився
                         </button>
                     </li>
                     {% if is_mentor %}
                     <li class="nav-item">
-                        <button class="nav-link rounded-pill px-4 ms-2" id="pills-mentor-tab" data-bs-toggle="pill"
-                                data-bs-target="#pills-mentor" type="button">
+                        <button class="nav-link rounded-pill px-4 ms-2" id="pills-mentor-tab" data-bs-toggle="pill" data-bs-target="#pills-mentor" type="button">
                             👨‍🏫 Я навчав
                         </button>
                     </li>
@@ -135,17 +118,14 @@
                                 <div>
                                     <h6 class="mb-1">{{ booking.service.title }}</h6>
                                     <small class="text-muted">
-                                        Ментор: {{ booking.mentor.user.first_name|truncatechars:12 }} {{
-                                        booking.mentor.user.last_name|truncatechars:12 }} | 📅 {{
-                                        booking.start_time|date:"d.m.Y" }}
+                                        Ментор: {{ booking.mentor.user.first_name }} {{ booking.mentor.user.last_name }} | 📅 {{ booking.start_time|date:"d.m.Y" }}
                                     </small>
                                 </div>
                                 <div>
                                     {% if booking.review %}
                                     <span class="badge bg-warning border">Оцінка: {{ booking.review.rating }}</span>
                                     {% else %}
-                                    <a href="{% url 'add_review' booking.id %}" class="btn btn-sm btn-outline-primary">Залишити
-                                        відгук</a>
+                                    <a href="{% url 'add_review' booking.id %}" class="btn btn-sm btn-outline-primary">Залишити відгук</a>
                                     {% endif %}
                                 </div>
                             </div>
@@ -159,9 +139,7 @@
                     <nav>
                         <ul class="pagination justify-content-center">
                             {% if client_history.has_previous %}
-                            <li class="page-item"><a class="page-link"
-                                                     href="?client_page={{ client_history.previous_page_number }}#history">←</a>
-                            </li>
+                            <li class="page-item"><a class="page-link" href="?client_page={{ client_history.previous_page_number }}#history">←</a></li>
                             {% else %}
                             <li class="page-item disabled"><span class="page-link">←</span></li>
                             {% endif %}
@@ -169,9 +147,7 @@
                             <li class="page-item active"><span class="page-link">{{ client_history.number }}</span></li>
 
                             {% if client_history.has_next %}
-                            <li class="page-item"><a class="page-link"
-                                                     href="?client_page={{ client_history.next_page_number }}#history">→</a>
-                            </li>
+                            <li class="page-item"><a class="page-link" href="?client_page={{ client_history.next_page_number }}#history">→</a></li>
                             {% else %}
                             <li class="page-item disabled"><span class="page-link">→</span></li>
                             {% endif %}
@@ -189,9 +165,7 @@
                                 <div>
                                     <h6 class="mb-1">{{ booking.service.title }}</h6>
                                     <small class="text-muted">
-                                        Учень: {{ booking.client.user.first_name|truncatechars:12 }} {{
-                                        booking.client.user.last_name|truncatechars:12 }} | 📅 {{
-                                        booking.start_time|date:"d.m.Y" }}
+                                        Учень: {{ booking.client.user.first_name }} {{ booking.client.user.last_name }} | 📅 {{ booking.start_time|date:"d.m.Y" }}
                                     </small>
                                 </div>
                                 <div>
@@ -212,9 +186,7 @@
                     <nav>
                         <ul class="pagination justify-content-center">
                             {% if mentor_history.has_previous %}
-                            <li class="page-item"><a class="page-link"
-                                                     href="?mentor_page={{ mentor_history.previous_page_number }}#history">←</a>
-                            </li>
+                            <li class="page-item"><a class="page-link" href="?mentor_page={{ mentor_history.previous_page_number }}#history">←</a></li>
                             {% else %}
                             <li class="page-item disabled"><span class="page-link">←</span></li>
                             {% endif %}
@@ -222,9 +194,7 @@
                             <li class="page-item active"><span class="page-link">{{ mentor_history.number }}</span></li>
 
                             {% if mentor_history.has_next %}
-                            <li class="page-item"><a class="page-link"
-                                                     href="?mentor_page={{ mentor_history.next_page_number }}#history">→</a>
-                            </li>
+                            <li class="page-item"><a class="page-link" href="?mentor_page={{ mentor_history.next_page_number }}#history">→</a></li>
                             {% else %}
                             <li class="page-item disabled"><span class="page-link">→</span></li>
                             {% endif %}
@@ -245,10 +215,7 @@
                         <div>
                             <h5 class="mb-1 text-primary">{{ booking.service.title }}</h5>
                             <p class="mb-1 text-white">
-                                Учень: <strong>
-                                {{ booking.client.user.first_name|truncatechars:12 }}
-                                {{ booking.client.user.last_name|truncatechars:12 }}
-                            </strong>
+                                Учень: <strong>{{ booking.client.user.first_name }} {{ booking.client.user.last_name }}</strong>
                             </p>
                             <small>📧 {{ booking.client.user.email }}</small>
                             {% if booking.note %}
