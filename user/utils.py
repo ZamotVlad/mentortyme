@@ -6,9 +6,7 @@ from zoneinfo import ZoneInfo
 from .models import Booking, WorkingHour
 
 
-# ============================================
 # ІНТЕГРАЦІЯ З GOOGLE CALENDAR
-# ============================================
 
 def get_google_calendar_service(user):
     """
@@ -105,9 +103,7 @@ def create_google_event(user, start_dt, duration_minutes, summary, description=N
         return None
 
 
-# ============================================
 # РОЗРАХУНОК ДОСТУПНИХ СЛОТІВ
-# ============================================
 
 def is_time_busy(slot_start, slot_end, busy_intervals):
     """

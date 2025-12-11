@@ -18,9 +18,7 @@ from .models import Service, Profile, Booking, WorkingHour, Review
 from .utils import get_available_slots, create_google_event, get_google_calendar_service
 
 
-# ============================================
 # ПУБЛІЧНІ СТОРІНКИ
-# ============================================
 
 def home(request: HttpRequest) -> HttpResponse:
     """Головна сторінка сайту"""
@@ -38,9 +36,7 @@ def mentor_profile(request: HttpRequest, slug: str) -> HttpResponse:
     })
 
 
-# ============================================
 # РЕЄСТРАЦІЯ ТА АВТОРИЗАЦІЯ
-# ============================================
 
 def register(request: HttpRequest) -> HttpResponse:
     """
@@ -81,9 +77,7 @@ def register(request: HttpRequest) -> HttpResponse:
     return render(request, 'registration/register.html', {'form': form})
 
 
-# ============================================
 # ОСОБИСТИЙ КАБІНЕТ
-# ============================================
 
 @login_required
 def dashboard(request: HttpRequest) -> HttpResponse:
@@ -151,9 +145,7 @@ def dashboard(request: HttpRequest) -> HttpResponse:
     })
 
 
-# ============================================
 # НАЛАШТУВАННЯ ПРОФІЛЮ
-# ============================================
 
 @login_required
 def profile_settings(request: HttpRequest) -> HttpResponse:
@@ -177,9 +169,7 @@ def profile_settings(request: HttpRequest) -> HttpResponse:
     })
 
 
-# ============================================
 # УПРАВЛІННЯ ПОСЛУГАМИ (тільки для менторів)
-# ============================================
 
 @login_required
 def my_services(request: HttpRequest) -> HttpResponse:
@@ -220,9 +210,7 @@ def delete_service(request: HttpRequest, service_id: int) -> HttpResponse:
     return redirect('my_services')
 
 
-# ============================================
 # НАЛАШТУВАННЯ ГРАФІКУ РОБОТИ (тільки для менторів)
-# ============================================
 
 @login_required
 def schedule_settings(request: HttpRequest) -> HttpResponse:
@@ -291,9 +279,7 @@ def schedule_settings(request: HttpRequest) -> HttpResponse:
     return render(request, 'user/schedule_settings.html', {'schedule': schedule_data})
 
 
-# ============================================
 # БРОНЮВАННЯ ЗАНЯТЬ
-# ============================================
 
 @login_required
 def service_detail(request: HttpRequest, service_id: int) -> HttpResponse:
@@ -451,9 +437,7 @@ def cancel_booking(request: HttpRequest, booking_id: int) -> HttpResponse:
     return redirect('dashboard')
 
 
-# ============================================
 # ВІДГУКИ ТА ОЦІНКИ
-# ============================================
 
 @login_required
 def add_review(request: HttpRequest, booking_id: int) -> HttpResponse:

@@ -5,18 +5,14 @@ from django.conf import settings
 from django.utils.text import slugify
 
 
-# ============================================
 # КОРИСТУВАЧ
-# ============================================
 
 class User(AbstractUser):
     """Розширена модель користувача (на майбутнє)"""
     pass
 
 
-# ============================================
 # ПРОФІЛЬ КОРИСТУВАЧА
-# ============================================
 
 class Profile(models.Model):
     """
@@ -110,9 +106,7 @@ class Profile(models.Model):
         return None
 
 
-# ============================================
 # ПОСЛУГИ МЕНТОРІВ
-# ============================================
 
 class Service(models.Model):
     """
@@ -134,9 +128,7 @@ class Service(models.Model):
         return f"{self.title} - {self.price} грн"
 
 
-# ============================================
 # ГРАФІК РОБОТИ МЕНТОРА
-# ============================================
 
 class WorkingHour(models.Model):
     """
@@ -166,9 +158,7 @@ class WorkingHour(models.Model):
         return f"{self.get_day_of_week_display()}: {self.start_time}-{self.end_time}"
 
 
-# ============================================
 # БРОНЮВАННЯ
-# ============================================
 
 class Booking(models.Model):
     """
@@ -246,9 +236,7 @@ class Booking(models.Model):
         return f"Booking {self.id}"
 
 
-# ============================================
 # ВІДГУКИ ТА ОЦІНКИ
-# ============================================
 
 class Review(models.Model):
     """

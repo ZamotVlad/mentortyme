@@ -6,9 +6,7 @@ from .models import Profile, Service, Review
 User = get_user_model()
 
 
-# ============================================
 # РЕЄСТРАЦІЯ
-# ============================================
 
 class CustomUserCreationForm(UserCreationForm):
     """Форма реєстрації з додатковими полями (ім'я, прізвище, email)"""
@@ -18,9 +16,7 @@ class CustomUserCreationForm(UserCreationForm):
         fields = ('username', 'email', 'first_name', 'last_name')
 
 
-# ============================================
 # РЕДАГУВАННЯ ПРОФІЛЮ
-# ============================================
 
 class UserUpdateForm(forms.ModelForm):
     """Форма для редагування базової інформації користувача"""
@@ -131,9 +127,7 @@ class ProfileUpdateForm(forms.ModelForm):
                 self.fields['bio'].help_text = "Це перше, що прочитає ваш потенційний учень."
 
 
-# ============================================
 # УПРАВЛІННЯ ПОСЛУГАМИ (тільки для менторів)
-# ============================================
 
 class ServiceForm(forms.ModelForm):
     """Форма створення/редагування послуги ментора"""
@@ -184,9 +178,7 @@ class ServiceForm(forms.ModelForm):
         }
 
 
-# ============================================
 # ВІДГУКИ ТА ОЦІНКИ
-# ============================================
 
 class ReviewForm(forms.ModelForm):
     """Форма для залишення відгуку після завершення заняття"""
