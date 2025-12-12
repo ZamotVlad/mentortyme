@@ -2,7 +2,7 @@ from pathlib import Path
 import os
 
 from django.conf.global_settings import AUTH_USER_MODEL
-from dotenv import load_dotenv  # Додати цей імпорт
+from dotenv import load_dotenv
 
 load_dotenv()
 
