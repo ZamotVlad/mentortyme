@@ -5,19 +5,14 @@ from django.conf import settings
 from django.utils.text import slugify
 
 
-# КОРИСТУВАЧ
-
 class User(AbstractUser):
-    """Розширена модель користувача (на майбутнє)"""
     pass
 
 
-# ПРОФІЛЬ КОРИСТУВАЧА
-
 class Profile(models.Model):
     """
-    Профіль користувача з роллю (клієнт або ментор)
-    Містить додаткову інформацію: аватар, біо, вік, стать, місто, посада
+    User profile with role (client or mentor)
+    Contains additional information: avatar, bio, age, gender, city, position
     """
     ROLE_CHOICES = (
         ('client', 'Клієнт'),
@@ -30,7 +25,6 @@ class Profile(models.Model):
         ('other', 'Стать не вказана'),
     )
 
-    # ===== ОСНОВНІ ПОЛЯ =====
     user = models.OneToOneField(
         settings.AUTH_USER_MODEL,
         on_delete=models.CASCADE,
@@ -42,7 +36,6 @@ class Profile(models.Model):
         default='client'
     )
 
-    # ===== ПУБЛІЧНА ІНФОРМАЦІЯ =====
     avatar = models.ImageField(
         upload_to='avatars/',
         default='avatars/default.png',
@@ -55,7 +48,6 @@ class Profile(models.Model):
         verbose_name="Про себе"
     )
 
-    # ===== ОСОБИСТІ ДАНІ =====
     age = models.PositiveIntegerField(
         blank=True,
         null=True,
@@ -75,7 +67,6 @@ class Profile(models.Model):
         verbose_name="Місто"
     )
 
-    # ===== ДЛЯ МЕНТОРІВ =====
     position = models.CharField(
         max_length=50,
         blank=True,
@@ -83,11 +74,10 @@ class Profile(models.Model):
         verbose_name="Посада"
     )
 
-    # ===== SLUG ДЛЯ URL =====
     slug = models.SlugField(unique=True, blank=True, null=True)
 
     def save(self, *args, **kwargs):
-        """Автоматичне створення slug при збереженні"""
+        """Automatic slug creation on save"""
         if not self.slug:
             base_slug = slugify(self.user.first_name + " " + self.user.last_name)
             if not base_slug:
@@ -99,19 +89,17 @@ class Profile(models.Model):
         return f"{self.user.username} Profile"
 
     def get_average_rating(self):
-        """Розрахунок середнього рейтингу ментора"""
+        """Calculation of the average mentor rating"""
         reviews = Review.objects.filter(booking__mentor=self)
         if reviews.exists():
             return round(reviews.aggregate(Avg('rating'))['rating__avg'], 1)
         return None
 
 
-# ПОСЛУГИ МЕНТОРІВ
-
 class Service(models.Model):
     """
-    Послуга, яку пропонує ментор
-    Містить назву, опис, тривалість, ціну та статус активності
+    Service offered by the mentor
+    Includes title, description, duration, price, and activity status
     """
     mentor = models.ForeignKey(
         Profile,
@@ -128,12 +116,10 @@ class Service(models.Model):
         return f"{self.title} - {self.price} грн"
 
 
-# ГРАФІК РОБОТИ МЕНТОРА
-
 class WorkingHour(models.Model):
     """
-    Робочі години ментора для конкретного дня тижня
-    Використовується для розрахунку доступних слотів
+    Mentor's working hours for a specific day of the week
+    Used to calculate available slots
     """
     DAY_CHOICES = (
         (0, 'Понеділок'),
@@ -158,12 +144,10 @@ class WorkingHour(models.Model):
         return f"{self.get_day_of_week_display()}: {self.start_time}-{self.end_time}"
 
 
-# БРОНЮВАННЯ
-
 class Booking(models.Model):
     """
-    Бронювання заняття між клієнтом і ментором
-    Містить інформацію про час, статус, ціну та зв'язок з Google Calendar
+    Booking a session between a client and a mentor
+    Contains information about the time, status, price, and link to Google Calendar
     """
     STATUS_CHOICES = (
         ('confirmed', 'Підтверджено'),
@@ -171,7 +155,6 @@ class Booking(models.Model):
         ('completed', 'Завершено'),
     )
 
-    # ===== ХТО ТА ЩО =====
     client = models.ForeignKey(
         Profile,
         on_delete=models.CASCADE,
@@ -189,7 +172,6 @@ class Booking(models.Model):
         blank=True
     )
 
-    # ===== КОЛИ =====
     start_time = models.DateTimeField()
     end_time = models.DateTimeField()
     status = models.CharField(
@@ -198,7 +180,6 @@ class Booking(models.Model):
         default='confirmed'
     )
 
-    # ===== ІНТЕГРАЦІЯ З GOOGLE CALENDAR =====
     google_event_id = models.CharField(
         max_length=255,
         blank=True,
@@ -212,7 +193,6 @@ class Booking(models.Model):
         help_text="ID події в календарі клієнта"
     )
 
-    # ===== ФІНАНСИ ТА ПРИМІТКИ =====
     price_at_booking = models.DecimalField(
         max_digits=10,
         decimal_places=2,
@@ -227,7 +207,7 @@ class Booking(models.Model):
     )
 
     def save(self, *args, **kwargs):
-        """Автоматичне збереження ціни при створенні"""
+        """Automatic price saving when creating"""
         if not self.price_at_booking and self.service:
             self.price_at_booking = self.service.price
         super().save(*args, **kwargs)
@@ -236,12 +216,10 @@ class Booking(models.Model):
         return f"Booking {self.id}"
 
 
-# ВІДГУКИ ТА ОЦІНКИ
-
 class Review(models.Model):
     """
-    Відгук клієнта про проведене заняття
-    Один відгук на одне бронювання (OneToOne)
+    Customer feedback on the lesson
+    One review per booking (OneToOne)
     """
     booking = models.OneToOneField(
         Booking,

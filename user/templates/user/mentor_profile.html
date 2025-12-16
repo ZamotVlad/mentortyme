@@ -28,21 +28,18 @@
         box-shadow: 0 4px 15px rgba(255, 215, 0, 0.3);
     }
 
-    /* --- ФІКС ДЛЯ ДОВГИХ СЛІВ --- */
-    /* Примусово переносимо довгі слова без пробілів */
     .break-word {
         word-wrap: break-word !important;
         word-break: break-word !important;
-        overflow-wrap: anywhere !important; /* Найсильніший метод переносу */
+        overflow-wrap: anywhere !important;
     }
 
-    /* Дозволяємо перенос тексту в бейджах (позиція, вік) */
     .badge {
-        white-space: normal !important; /* Перебиваємо стандарт Bootstrap */
+        white-space: normal !important;
         text-align: center;
         line-height: 1.4;
-        max-width: 100%; /* Щоб не вилазив за екран */
-        display: inline-block; /* Для коректної роботи max-width */
+        max-width: 100%;
+        display: inline-block;
     }
 </style>
 

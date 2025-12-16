@@ -6,12 +6,10 @@ from zoneinfo import ZoneInfo
 from .models import Booking, WorkingHour
 
 
-# ІНТЕГРАЦІЯ З GOOGLE CALENDAR
-
 def get_google_calendar_service(user):
     """
-    Отримання сервісу Google Calendar для користувача
-    Повертає None, якщо Google OAuth не підключено
+    Obtaining Google Calendar service for the user
+    Returns None if Google OAuth is not connected
     """
     if not hasattr(user, 'social_auth'):
         return None
@@ -24,7 +22,6 @@ def get_google_calendar_service(user):
     access_token = social_auth.extra_data.get('access_token')
     refresh_token = social_auth.extra_data.get('refresh_token')
 
-    # Створення credentials для Google API
     creds = Credentials(
         token=access_token,
         refresh_token=refresh_token,
@@ -38,8 +35,8 @@ def get_google_calendar_service(user):
 
 def get_busy_periods(user, date_str):
     """
-    Отримання зайнятих періодів з Google Calendar користувача
-    Повертає список dict з ключами 'start' та 'end' (ISO format)
+    Retrieving busy periods from the user's Google Calendar
+    Returns a dict list with ‘start’ and ‘end’ keys (ISO format)
     """
     service = get_google_calendar_service(user)
     if not service:
@@ -48,15 +45,12 @@ def get_busy_periods(user, date_str):
     date_obj = datetime.datetime.strptime(date_str, '%Y-%m-%d').date()
     kyiv_tz = ZoneInfo('Europe/Kyiv')
 
-    # Визначаємо початок і кінець дня у київському часі
     local_start = datetime.datetime.combine(date_obj, datetime.time.min, tzinfo=kyiv_tz)
     local_end = datetime.datetime.combine(date_obj, datetime.time.max, tzinfo=kyiv_tz)
 
-    # Конвертуємо у UTC для Google API
     time_min = local_start.astimezone(datetime.timezone.utc).isoformat().replace('+00:00', 'Z')
     time_max = local_end.astimezone(datetime.timezone.utc).isoformat().replace('+00:00', 'Z')
 
-    # Запит до Google Calendar FreeBusy API
     body = {
         "timeMin": time_min,
         "timeMax": time_max,
@@ -73,8 +67,8 @@ def get_busy_periods(user, date_str):
 
 def create_google_event(user, start_dt, duration_minutes, summary, description=None):
     """
-    Створення події в Google Calendar користувача
-    Повертає event_id або None у разі помилки
+    Create an event in the user's Google Calendar
+    Returns event_id or None if an error occurs
     """
     service = get_google_calendar_service(user)
     if not service:
@@ -103,18 +97,15 @@ def create_google_event(user, start_dt, duration_minutes, summary, description=N
         return None
 
 
-# РОЗРАХУНОК ДОСТУПНИХ СЛОТІВ
-
 def is_time_busy(slot_start, slot_end, busy_intervals):
     """
-    Перевірка, чи перетинається слот з зайнятими інтервалами
-    Повертає True, якщо слот зайнятий
+    Checks whether the slot overlaps with occupied intervals
+    Returns True if the slot is occupied
     """
     for busy in busy_intervals:
         busy_start = busy['start']
         busy_end = busy['end']
 
-        # Перевірка перетину інтервалів
         if slot_start < busy_end and slot_end > busy_start:
             return True
 
@@ -123,54 +114,47 @@ def is_time_busy(slot_start, slot_end, busy_intervals):
 
 def get_available_slots(user, date_obj, duration_minutes):
     """
-    Отримання списку доступних часових слотів для бронювання
+    Obtaining a list of available time slots for booking
 
-    Алгоритм:
-    1. Отримуємо робочий графік ментора на цей день
-    2. Отримуємо зайняті періоди з Google Calendar
-    3. Отримуємо локальні бронювання з БД
-    4. Генеруємо слоти з інтервалом (duration + 15 хв перерва)
-    5. Фільтруємо зайняті слоти
+    Algorithm:
+    1. Obtain the mentor's work schedule for the day
+    2. Obtain busy periods from Google Calendar
+    3. Obtain local bookings from the database
+        4. Generate slots with an interval (duration + 15 min break)
+    5. Filter busy slots
 
     Returns:
-        list: Список доступних слотів у форматі 'HH:MM'
+    list: List of available slots in ‘HH:MM’ format
     """
-    # ===== КРОК 1: ОТРИМАННЯ РОБОЧОГО ГРАФІКУ =====
     day_num = date_obj.weekday()
     working_hour = WorkingHour.objects.filter(
         mentor__user=user,
         day_of_week=day_num
     ).first()
 
-    # Якщо ментор не працює в цей день
     if not working_hour:
         return []
 
     work_start = datetime.datetime.combine(date_obj, working_hour.start_time)
     work_end = datetime.datetime.combine(date_obj, working_hour.end_time)
 
-    # ===== КРОК 2: ЗБІР ЗАЙНЯТИХ ІНТЕРВАЛІВ =====
     all_busy_intervals = []
     kyiv_tz = ZoneInfo('Europe/Kyiv')
 
-    # 2.1 Зайняті періоди з Google Calendar
     google_busy = get_busy_periods(user, date_obj.strftime('%Y-%m-%d'))
 
     for item in google_busy:
-        # Конвертуємо UTC -> Київський час
         s_utc = datetime.datetime.fromisoformat(item['start'].replace('Z', '+00:00'))
         e_utc = datetime.datetime.fromisoformat(item['end'].replace('Z', '+00:00'))
 
         s_local_aware = s_utc.astimezone(kyiv_tz)
         e_local_aware = e_utc.astimezone(kyiv_tz)
 
-        # Видаляємо timezone info для порівняння
         s_local = s_local_aware.replace(tzinfo=None)
         e_local = e_local_aware.replace(tzinfo=None)
 
         all_busy_intervals.append({'start': s_local, 'end': e_local})
 
-    # 2.2 Локальні бронювання з БД
     local_bookings = Booking.objects.filter(
         mentor__user=user,
         start_time__date=date_obj,
@@ -183,21 +167,17 @@ def get_available_slots(user, date_obj, duration_minutes):
             'end': booking.end_time.replace(tzinfo=None)
         })
 
-    # ===== КРОК 3: ГЕНЕРАЦІЯ ДОСТУПНИХ СЛОТІВ =====
     available_slots = []
     current_slot = work_start
 
-    # Крок між слотами: тривалість заняття + 15 хв перерва
     step_minutes = duration_minutes + 15
 
     while current_slot + datetime.timedelta(minutes=duration_minutes) <= work_end:
         slot_end = current_slot + datetime.timedelta(minutes=duration_minutes)
 
-        # Перевіряємо, чи не зайнятий цей слот
         if not is_time_busy(current_slot, slot_end, all_busy_intervals):
             available_slots.append(current_slot.strftime('%H:%M'))
 
-        # Переходимо до наступного слоту
         current_slot += datetime.timedelta(minutes=step_minutes)
 
     return available_slots

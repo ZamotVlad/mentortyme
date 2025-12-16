@@ -5,21 +5,16 @@ from .models import Profile, Service, Review
 
 User = get_user_model()
 
-
-# РЕЄСТРАЦІЯ
-
 class CustomUserCreationForm(UserCreationForm):
-    """Форма реєстрації з додатковими полями (ім'я, прізвище, email)"""
+    """Registration form with additional fields (first name, last name, email)"""
 
     class Meta:
         model = User
         fields = ('username', 'email', 'first_name', 'last_name')
 
 
-# РЕДАГУВАННЯ ПРОФІЛЮ
-
 class UserUpdateForm(forms.ModelForm):
-    """Форма для редагування базової інформації користувача"""
+    """Form for editing basic user information"""
 
     class Meta:
         model = User
@@ -51,8 +46,8 @@ class UserUpdateForm(forms.ModelForm):
 
 class ProfileUpdateForm(forms.ModelForm):
     """
-    Форма для редагування додаткової інформації профілю
-    Динамічно змінюється в залежності від ролі (клієнт/ментор)
+    Form for editing additional profile information
+    Dynamically changes depending on the role (client/mentor)
     """
 
     class Meta:
@@ -105,32 +100,26 @@ class ProfileUpdateForm(forms.ModelForm):
 
     def __init__(self, *args, **kwargs):
         """
-        Динамічна зміна полів в залежності від ролі користувача
-        Клієнти не мають поля 'position'
+        Dynamic change of fields depending on the user's role
+        Clients do not have the ‘position’ field
         """
         super().__init__(*args, **kwargs)
 
         if self.instance and self.instance.pk:
-            # ===== ДЛЯ КЛІЄНТІВ =====
             if self.instance.role == 'client':
-                # Видаляємо поле "Посада" для клієнтів
                 if 'position' in self.fields:
                     del self.fields['position']
 
-                # Змінюємо назву і placeholder для біо
                 self.fields['bio'].label = "Про себе"
                 self.fields['bio'].widget.attrs['placeholder'] = "Кілька слів про ваші інтереси..."
 
-            # ===== ДЛЯ МЕНТОРІВ =====
             else:
                 self.fields['bio'].label = "Біографія (те, що побачать клієнти)"
                 self.fields['bio'].help_text = "Це перше, що прочитає ваш потенційний учень."
 
 
-# УПРАВЛІННЯ ПОСЛУГАМИ (тільки для менторів)
-
 class ServiceForm(forms.ModelForm):
-    """Форма створення/редагування послуги ментора"""
+    """Form for creating/editing a mentor service"""
 
     class Meta:
         model = Service
@@ -178,10 +167,8 @@ class ServiceForm(forms.ModelForm):
         }
 
 
-# ВІДГУКИ ТА ОЦІНКИ
-
 class ReviewForm(forms.ModelForm):
-    """Форма для залишення відгуку після завершення заняття"""
+    """Form for leaving feedback after completing the lesson"""
 
     class Meta:
         model = Review
