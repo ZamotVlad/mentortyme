@@ -308,10 +308,13 @@ def service_detail(request: HttpRequest, service_id: int) -> HttpResponse:
                 "%Y-%m-%d %H:%M"
             )
 
+            client_email = request.user.email if request.user.email else "Email не вказано в профілі"
+
             summary = f"{service.title} - {request.user.first_name}"
+
             google_description = (
-                f"Клієнт: {request.user.first_name}\n"
-                f"Email: {request.user.email}\n"
+                f"Клієнт: {request.user.first_name} {request.user.last_name}\n"  # Додав прізвище, якщо є
+                f"Email: {client_email}\n"  # Тепер тут ніколи не буде пусто
                 f"📞 {note_text}"
             )
 

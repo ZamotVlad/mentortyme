@@ -55,7 +55,10 @@
         <div class="col-md-5 mb-4">
             <div class="card shadow-sm border-0 h-100 mentor-card">
                 {% if service.mentor.avatar %}
-                    <img src="{{ service.mentor.avatar.url }}" class="card-img-top" style="height: 300px; object-fit: cover; border-radius: 0.5rem 0.5rem 0 0;">
+                    <img src="{{ service.mentor.avatar.url }}"
+                    class="card-img-top"
+                    alt="{{ service.mentor.user.first_name }}"
+                    style="width: 100%; height: auto; border-radius: 0.5rem 0.5rem 0 0;">
                 {% else %}
                     <div class="text-white text-center py-5" style="height: 300px; display: flex; align-items: center; justify-content: center; background: linear-gradient(135deg, #2d333b 0%, #1b1f24 100%);">
                         <span class="display-1">{{ service.mentor.user.first_name|first }}</span>
