@@ -25,5 +25,9 @@ jobs:
           pip install -r requirements.txt
 
       - name: Run tests
+        env:
+          SECRET_KEY: "ci-test-secret-key-just-for-github-actions"
+          SOCIAL_AUTH_GOOGLE_OAUTH2_KEY: "fake-key"
+          SOCIAL_AUTH_GOOGLE_OAUTH2_SECRET: "fake-secret"
         run: |
           pytest
